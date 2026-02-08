@@ -1,50 +1,70 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useForm, type SubmitHandler } from "react-hook-form";
+import { toast } from "sonner";
+import { Upload } from "lucide-react";
+
+import store from "@/store/store";
+import { setUser as updateUser } from "@/store/auth/authSlice";
+
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { toast } from "sonner";
-import store from "@/store/store";
-import { setUser as updateUser } from "@/store/auth/authSlice";
+
+// kalau project kamu punya textarea shadcn, pakai ini:
+import { Textarea } from "@/components/ui/textarea"; // <-- kalau error, hapus import ini + pakai fallback textarea di bawah
 
 type Inputs = {
   name: string;
   email: string;
   password?: string;
+  bio?: string;
 };
 
-const Profile = () => {
+const DEFAULT_COVER =
+  "https://deifkwefumgah.cloudfront.net/shadcnblocks/block/photos/pawel-czerwinski-O4fAgtXLRwI-unsplash.jpg";
+
+export default function ProfilePage() {
   const [user, setUser] = useState<any>(null);
+
+  // cover & avatar
+  const [coverImage, setCoverImage] = useState<string>(DEFAULT_COVER);
   const [profileImage, setProfileImage] = useState<string | null>(null);
 
   const { register, handleSubmit, reset } = useForm<Inputs>();
 
+  const loggedInUserId = useMemo(() => {
+    return localStorage.getItem("loggedInUser") || sessionStorage.getItem("loggedInUser");
+  }, []);
+
   useEffect(() => {
-    const existingUsers = JSON.parse(localStorage.getItem("users") || "[]");
-    const loggedInUser = localStorage.getItem("loggedInUser") || sessionStorage.getItem("loggedInUser");
-    const foundUser = existingUsers.find((user: { id: string }) => user.id === loggedInUser);
+    const users = JSON.parse(localStorage.getItem("users") || "[]");
 
-    console.log(foundUser);
-    console.log(loggedInUser);
-    console.log(existingUsers);
-    console.log(existingUsers[0].id);
+    const found = users.find((u: { id: string }) => u.id === loggedInUserId);
+    if (!found) return;
 
-    if (loggedInUser) {
-      setUser(foundUser);
-      setProfileImage(foundUser?.profileImage || null);
-    }
-  }, [reset]);
+    setUser(found);
+    setProfileImage(found?.profileImage || null);
+    setCoverImage(found?.coverImage || DEFAULT_COVER);
 
-  const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    // set default values untuk form
+    reset({
+      name: found?.name ?? "",
+      email: found?.email ?? "",
+      bio: found?.bio ?? "",
+      password: "",
+    });
+  }, [loggedInUserId, reset]);
+
+  const handleImageUpload = (setter: (v: string) => void) => (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        const base64String = reader.result as string;
-        setProfileImage(base64String);
-      };
-      reader.readAsDataURL(file);
-    }
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setter(reader.result as string);
+    };
+    reader.readAsDataURL(file);
   };
 
   const onSubmit: SubmitHandler<Inputs> = (data) => {
@@ -52,8 +72,11 @@ const Profile = () => {
 
     const updatedUser = {
       ...user,
+      name: data.name ?? user.name,
+      bio: data.bio ?? user.bio,
       password: data.password ? data.password : user.password,
       profileImage,
+      coverImage,
     };
 
     const users = JSON.parse(localStorage.getItem("users") || "[]");
@@ -65,53 +88,153 @@ const Profile = () => {
     toast.success("Profile updated successfully!");
   };
 
+  const onCancel = () => {
+    if (!user) return;
+    reset({
+      name: user.name ?? "",
+      email: user.email ?? "",
+      bio: user.bio ?? "",
+      password: "",
+    });
+    setProfileImage(user?.profileImage || null);
+    setCoverImage(user?.coverImage || DEFAULT_COVER);
+    toast.message("Changes reverted.");
+  };
+
+  // ids untuk input file (biar bisa trigger dari button)
+  const coverInputId = "cover-upload";
+  const avatarInputId = "avatar-upload";
+
   return (
-    <div className="max-w-lg mx-auto p-6 border-muted border">
-      <h2 className="text-2xl font-bold mb-4 text-center">Profile</h2>
+    <div className="max-w-2xl space-y-6 w-full mx-auto">
+      {/* Header card (cover + avatar) */}
+      <Card className="overflow-hidden pt-0">
+        <div
+          className="relative h-32 bg-muted bg-cover bg-center sm:h-40"
+          style={{ backgroundImage: `url("${coverImage}")` }}
+        >
+          <div className="absolute inset-0 bg-black/20" />
 
-      <div className="flex justify-center mb-4">
-        {profileImage ? (
-          <img src={profileImage} alt="Profile" className="w-24 h-24 rounded-full object-cover" />
-        ) : (
-          <div className="w-24 h-24 rounded-full bg-gray-300 flex items-center justify-center">
-            <span className="text-gray-600">No Image</span>
+          <div className="absolute bottom-3 right-3 flex gap-2">
+            <Button
+              type="button"
+              variant="secondary"
+              size="sm"
+              className="shadow-md"
+              onClick={() => document.getElementById(coverInputId)?.click()}
+            >
+              <Upload className="mr-2 size-4" />
+              Change Cover
+            </Button>
           </div>
-        )}
-      </div>
 
-      <form className="grid gap-4" onSubmit={handleSubmit(onSubmit)}>
-        <div className="grid gap-2">
-          <Label htmlFor="name">Name</Label>
-          <Input id="name" type="text" disabled value={user?.name || ""} />
-        </div>
-
-        <div className="grid gap-2">
-          <Label htmlFor="email">Email</Label>
-          <Input id="email" type="email" disabled value={user?.email || ""} />
-        </div>
-
-        <div className="grid gap-2">
-          <Label htmlFor="password">New Password (optional)</Label>
-          <Input
-            id="password"
-            type="password"
-            {...register("password")}
-            placeholder="••••••••"
-            autoComplete="password"
+          <input
+            id={coverInputId}
+            type="file"
+            accept="image/*"
+            className="sr-only"
+            onChange={handleImageUpload((v) => setCoverImage(v))}
           />
         </div>
 
-        <div className="grid gap-2">
-          <Label htmlFor="profileImage">Profile Image</Label>
-          <Input id="profileImage" type="file" accept="image/*" onChange={handleImageUpload} />
-        </div>
+        <CardContent className="px-6 -mt-12 pb-0 sm:-mt-14">
+          <div className="flex flex-col items-center gap-4 sm:flex-row sm:items-end">
+            {/* Avatar + upload */}
+            <div className="relative">
+              <div className="relative size-24 overflow-hidden rounded-full border-4 border-card shadow-lg sm:size-28">
+                {profileImage ? (
+                  <img src={profileImage} alt={user?.name ?? "Profile"} className="h-full w-full object-cover" />
+                ) : (
+                  <div className="bg-muted flex h-full w-full items-center justify-center text-xs text-muted-foreground">
+                    No photo
+                  </div>
+                )}
+              </div>
 
-        <Button type="submit" className="w-full">
-          Update Profile
+              <Button
+                type="button"
+                variant="secondary"
+                size="icon"
+                className="absolute -bottom-1 -right-1 size-8 rounded-full shadow-md"
+                onClick={() => document.getElementById(avatarInputId)?.click()}
+              >
+                <Upload className="size-4" />
+              </Button>
+
+              <input
+                id={avatarInputId}
+                type="file"
+                accept="image/*"
+                className="sr-only"
+                onChange={handleImageUpload((v) => setProfileImage(v))}
+              />
+            </div>
+
+            {/* Name + email */}
+            <div className="space-y-1 text-center sm:pb-1 sm:text-left">
+              <h3 className="text-lg font-semibold">{user?.name ?? "—"}</h3>
+              <p className="text-sm text-muted-foreground">{user?.email ?? "—"}</p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Basic Information */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Basic Information</CardTitle>
+          <CardDescription>This information will be displayed on your public profile</CardDescription>
+        </CardHeader>
+
+        <CardContent className="space-y-4">
+          <div className="space-y-2">
+            <Label htmlFor="name">Display Name</Label>
+            <Input id="name" {...register("name")} disabled={!user} />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="email">Email</Label>
+            <Input id="email" type="email" {...register("email")} readOnly />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="bio">About</Label>
+
+            {/* kalau Textarea shadcn tidak ada, ganti bagian ini dengan <textarea ...> */}
+            <Textarea
+              id="bio"
+              rows={4}
+              placeholder="Tell others about yourself"
+              {...register("bio")}
+              disabled={!user}
+            />
+
+            <p className="text-xs text-muted-foreground">You can use markdown for formatting</p>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="password">New Password (optional)</Label>
+            <Input
+              id="password"
+              type="password"
+              placeholder="••••••••"
+              autoComplete="new-password"
+              {...register("password")}
+              disabled={!user}
+            />
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Actions (bottom right like example) */}
+      <div className="flex justify-end gap-2">
+        <Button type="button" variant="outline" onClick={onCancel} disabled={!user}>
+          Cancel
         </Button>
-      </form>
+        <Button type="button" onClick={handleSubmit(onSubmit)} disabled={!user}>
+          Save Changes
+        </Button>
+      </div>
     </div>
   );
-};
-
-export default Profile;
+}

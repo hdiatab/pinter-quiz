@@ -10,7 +10,7 @@ export function FloatingDock({ className = "" }: { className?: string }) {
   return (
     <div className={["fixed bottom-4 left-1/2 z-50 -translate-x-1/2 w-full", "", className].join(" ")}>
       <nav
-        className="items-center justify-between gap-2 rounded-full bg-primary-foreground p-3 flex mx-4 ring-1 ring-foreground/50"
+        className="items-center justify-between gap-2 rounded-full bg-primary-foreground p-3 flex mx-4 border"
         aria-label="Quick navigation"
       >
         {navItemsWithActive.map((item) => {
@@ -22,7 +22,7 @@ export function FloatingDock({ className = "" }: { className?: string }) {
               to={item.url}
               aria-label={item.title}
               className={`flex h-10 w-fit p-3 items-center justify-center rounded-full bg-foreground/5 text-muted-foreground transition-all ${
-                item.isActive ? "ring-1 ring-foreground/50 shrink-0 gap-2" : ""
+                item.isActive ? "border shrink-0 gap-2" : ""
               }`}
             >
               <Icon className="h-5 w-5" />

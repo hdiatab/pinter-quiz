@@ -73,11 +73,19 @@ export default function DashboardPage() {
       <div className="space-y-2">
         <h2 className="text-sm font-medium">Category</h2>
         <Tabs defaultValue="all">
-          <TabsList>
-            <TabsTrigger value="all">All</TabsTrigger>
-            <TabsTrigger value="science">Science</TabsTrigger>
-            <TabsTrigger value="math">Math</TabsTrigger>
-            <TabsTrigger value="music">Music</TabsTrigger>
+          <TabsList className="rounded-full">
+            <TabsTrigger className="rounded-full" value="all">
+              All
+            </TabsTrigger>
+            <TabsTrigger className="rounded-full" value="science">
+              Science
+            </TabsTrigger>
+            <TabsTrigger className="rounded-full" value="math">
+              Math
+            </TabsTrigger>
+            <TabsTrigger className="rounded-full" value="music">
+              Music
+            </TabsTrigger>
           </TabsList>
         </Tabs>
       </div>

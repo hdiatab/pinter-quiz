@@ -19,7 +19,7 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
   }));
 
   return (
-    <Sidebar {...props}>
+    <Sidebar {...props} classNameInner={`${state === "collapsed" ? "!rounded-full duration-1000" : ""}`}>
       <SidebarHeader>
         <Link
           to={"/"}

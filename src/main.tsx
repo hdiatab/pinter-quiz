@@ -1,4 +1,3 @@
-import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import { BrowserRouter } from "react-router-dom";
 
@@ -11,14 +10,12 @@ import store from "./store/store.ts";
 import { Toaster } from "./components/ui/sonner.tsx";
 
 createRoot(document.getElementById("root")!).render(
-  <StrictMode>
-    <Provider store={store}>
-      <ThemeProvider defaultTheme="dark" storageKey="pinter-ui-theme">
-        <BrowserRouter>
-          <App />
-        </BrowserRouter>
-        <Toaster />
-      </ThemeProvider>
-    </Provider>
-  </StrictMode>
+  <Provider store={store}>
+    <ThemeProvider defaultTheme="dark" storageKey="pinter-ui-theme">
+      <BrowserRouter>
+        <App />
+      </BrowserRouter>
+      <Toaster />
+    </ThemeProvider>
+  </Provider>
 );
