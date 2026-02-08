@@ -1,39 +1,12 @@
 import * as React from "react";
-import { LayoutDashboard, Trophy, User, Settings, HelpCircle, BadgeQuestionMarkIcon } from "lucide-react";
+import { HelpCircle } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import { useSelector } from "react-redux";
 
 import { NavMain } from "@/components/nav-main";
 import { NavUser } from "@/components/nav-user";
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, useSidebar } from "@/components/ui/sidebar";
-
-const NAV_ITEMS = [
-  {
-    title: "Dashboard",
-    url: "/dashboard",
-    icon: LayoutDashboard,
-  },
-  {
-    title: "Start Quiz",
-    url: "/start-quiz",
-    icon: BadgeQuestionMarkIcon,
-  },
-  {
-    title: "Leaderboards",
-    url: "/leaderboards",
-    icon: Trophy,
-  },
-  {
-    title: "Account",
-    url: "/account",
-    icon: User,
-  },
-  {
-    title: "Settings",
-    url: "/settings",
-    icon: Settings,
-  },
-] as const;
+import { NAV_ITEMS } from "@/constants/dashboard-navigation.constant";
 
 export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
   const { user } = useSelector((state: any) => state.auth);
@@ -50,11 +23,11 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
       <SidebarHeader>
         <Link
           to={"/"}
-          className={`${state === "collapsed" ? "max-md:p-2" : "p-2"} transition-all hover:bg-primary/5 rounded-sm`}
+          className={`${state === "collapsed" ? "max-md:p-2" : "p-2"} transition-all hover:bg-primary/5 rounded-full`}
         >
           <div className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground flex gap-4">
-            <div className="bg-sidebar-primary text-sidebar-primary-foreground flex aspect-square size-8 items-center justify-center rounded-lg">
-              <HelpCircle className="size-4" />
+            <div className="bg-sidebar-primary text-sidebar-primary-foreground flex aspect-square size-8 items-center justify-center rounded-full">
+              <HelpCircle className="size-7" />
             </div>
 
             <div className="grid flex-1 text-left text-sm leading-tight">

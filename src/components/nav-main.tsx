@@ -28,11 +28,14 @@ export function NavMain({
   return (
     <SidebarGroup>
       <SidebarGroupLabel>Platform</SidebarGroupLabel>
-      <SidebarMenu>
+      <SidebarMenu className="gap-1.5">
         {items.map((item) => (
           <SidebarMenuItem key={item.title}>
             <Link to={item.url}>
-              <SidebarMenuButton tooltip={item.title}>
+              <SidebarMenuButton
+                tooltip={item.title}
+                className={`rounded-full ${item.isActive ? "bg-foreground/5" : ""}`}
+              >
                 {item.icon && <item.icon />}
                 <span>{item.title}</span>
               </SidebarMenuButton>
