@@ -9,9 +9,10 @@ import DefaultLayout from "./layouts/default";
 import AuthLayout from "./layouts/auth";
 import RegisterPage from "./pages/Register";
 import ProfilePage from "./pages/Profile";
+import { useSelector } from "react-redux";
 
 export default function App() {
-  const isAuthenticated = true;
+  const { isAuthenticated } = useSelector((state: any) => state.auth);
   return (
     <Routes>
       <Route path="/" element={<DefaultLayout />}>

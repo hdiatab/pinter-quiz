@@ -1,8 +1,14 @@
+import { useDispatch, useSelector } from "react-redux";
 import { Link, NavLink, useNavigate } from "react-router";
+import { useId, useState } from "react";
+import { toast } from "sonner";
 
-import { LogOut, User } from "lucide-react";
+import { LoaderCircle, LogOut, Moon, Search, Sun, User } from "lucide-react";
 
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -13,25 +19,30 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
-import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
+import { useTheme } from "@/components/theme-provider";
+
 import { useInitials } from "@/hooks/use-initials";
-import { ModeToggle } from "./mode-toggle";
+
 import logo from "/fav-icon.png";
 
+import { logout } from "@/redux/auth/authSlice";
+import store from "@/redux/store";
+
 const Header = () => {
-  const navigate = useNavigate();
+  const id = useId();
   const getInitials = useInitials();
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const { setTheme } = useTheme();
+
+  const { user, isAuthenticated } = useSelector((state: any) => state.auth);
+
+  const [searchKeyword, setSearchKeyword] = useState<string>("");
 
   const onClickLogout = () => {
+    dispatch(logout());
+    toast.info("Logout successful!");
     navigate("/");
-  };
-
-  const isAuthenticated = true;
-
-  const user = {
-    name: "HAB",
-    profileImage: "",
-    email: "hadiat@email.com",
   };
 
   return (
@@ -67,7 +78,21 @@ const Header = () => {
           </nav>
         </div>
         <div className="justify-self-end flex gap-2 items-center relative">
-          <ModeToggle />
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" size="icon">
+                <Sun className="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
+                <Moon className="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
+                <span className="sr-only">Toggle theme</span>
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem onClick={() => setTheme("light")}>Light</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setTheme("dark")}>Dark</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setTheme("system")}>System</DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+
           {isAuthenticated ? (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>

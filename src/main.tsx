@@ -6,13 +6,19 @@ import { ThemeProvider } from "@/components/theme-provider.tsx";
 
 import "./index.css";
 import App from "./App.tsx";
+import { Provider } from "react-redux";
+import store from "./redux/store.ts";
+import { Toaster } from "./components/ui/sonner.tsx";
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
-    <ThemeProvider defaultTheme="dark" storageKey="pinter-ui-theme">
-      <BrowserRouter>
-        <App />
-      </BrowserRouter>
-    </ThemeProvider>
+    <Provider store={store}>
+      <ThemeProvider defaultTheme="dark" storageKey="pinter-ui-theme">
+        <BrowserRouter>
+          <App />
+        </BrowserRouter>
+        <Toaster />
+      </ThemeProvider>
+    </Provider>
   </StrictMode>
 );
