@@ -22,7 +22,7 @@ import { useInitials } from "@/hooks/use-initials";
 
 import logo from "/fav-icon.png";
 
-import { logout } from "@/redux/auth/authSlice";
+import { logout } from "@/store/auth/authSlice";
 
 const Header = () => {
   const getInitials = useInitials();

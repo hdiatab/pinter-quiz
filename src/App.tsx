@@ -11,6 +11,10 @@ import RegisterPage from "./pages/Register";
 import AccountPage from "./pages/Account";
 import { useSelector } from "react-redux";
 import DashboardLayout from "./layouts/dashboard";
+import QuizPage from "./pages/Quiz";
+import ResultPage from "./pages/QuizResult";
+import Leaderboard from "./pages/Leaderboard";
+import StartQuizPage from "./pages/StartQuiz";
 
 export default function App() {
   const { isAuthenticated } = useSelector((state: any) => state.auth);
@@ -55,6 +59,10 @@ export default function App() {
         <Route element={<DashboardLayout breadcrumbs={breadcrumbs} />}>
           <Route path="account" element={<AccountPage />} />
           <Route path="dashboard" element={<DashboardPage />} />
+          <Route path="quiz" element={<QuizPage />} />
+          <Route path="quiz/result" element={<ResultPage />} />
+          <Route path="leaderboards" element={<Leaderboard />} />
+          <Route path="start-quiz" element={<StartQuizPage />} />
         </Route>
       </Route>
       <Route path="*" element={<DefaultLayout />}>

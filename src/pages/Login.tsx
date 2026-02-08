@@ -3,9 +3,9 @@ import { Link, useNavigate } from "react-router";
 import { useState } from "react";
 import { toast } from "sonner";
 
-import store from "@/redux/store";
+import store from "@/store/store";
 
-import { setAuthenticated } from "@/redux/auth/authSlice";
+import { setAuthenticated } from "@/store/auth/authSlice";
 
 import { LoaderCircle } from "lucide-react";
 
@@ -49,7 +49,7 @@ const LoginPage = () => {
 
       toast.success("Login successful!");
       if (data.remember) {
-        localStorage.setItem("loggedInUser", JSON.stringify(foundUser.id));
+        localStorage.setItem("loggedInUser", foundUser.id);
       } else {
         sessionStorage.setItem("loggedInUser", foundUser.id);
       }

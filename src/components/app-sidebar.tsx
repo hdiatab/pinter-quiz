@@ -1,5 +1,5 @@
 import * as React from "react";
-import { LayoutDashboard, Trophy, User, Settings, HelpCircle } from "lucide-react";
+import { LayoutDashboard, Trophy, User, Settings, HelpCircle, BadgeQuestionMarkIcon } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import { useSelector } from "react-redux";
 
@@ -12,6 +12,11 @@ const NAV_ITEMS = [
     title: "Dashboard",
     url: "/dashboard",
     icon: LayoutDashboard,
+  },
+  {
+    title: "Start Quiz",
+    url: "/start-quiz",
+    icon: BadgeQuestionMarkIcon,
   },
   {
     title: "Leaderboards",
@@ -41,9 +46,12 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
   }));
 
   return (
-    <Sidebar collapsible="icon" {...props}>
+    <Sidebar {...props}>
       <SidebarHeader>
-        <Link to={"/"} className={`${state === "collapsed" ? "" : "p-2"} transition-all hover:bg-primary/5 rounded-sm`}>
+        <Link
+          to={"/"}
+          className={`${state === "collapsed" ? "max-md:p-2" : "p-2"} transition-all hover:bg-primary/5 rounded-sm`}
+        >
           <div className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground flex gap-4">
             <div className="bg-sidebar-primary text-sidebar-primary-foreground flex aspect-square size-8 items-center justify-center rounded-lg">
               <HelpCircle className="size-4" />
