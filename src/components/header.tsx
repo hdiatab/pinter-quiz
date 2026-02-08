@@ -1,14 +1,11 @@
 import { useDispatch, useSelector } from "react-redux";
 import { Link, NavLink, useNavigate } from "react-router";
-import { useId, useState } from "react";
 import { toast } from "sonner";
 
-import { LoaderCircle, LogOut, Moon, Search, Sun, User } from "lucide-react";
+import { LayoutDashboardIcon, LogOut, Moon, Sun, User } from "lucide-react";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -26,18 +23,14 @@ import { useInitials } from "@/hooks/use-initials";
 import logo from "/fav-icon.png";
 
 import { logout } from "@/redux/auth/authSlice";
-import store from "@/redux/store";
 
 const Header = () => {
-  const id = useId();
   const getInitials = useInitials();
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { setTheme } = useTheme();
 
   const { user, isAuthenticated } = useSelector((state: any) => state.auth);
-
-  const [searchKeyword, setSearchKeyword] = useState<string>("");
 
   const onClickLogout = () => {
     dispatch(logout());
@@ -122,6 +115,12 @@ const Header = () => {
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 <DropdownMenuGroup>
+                  <DropdownMenuItem asChild>
+                    <Link className="block w-full" to={"/dashboard"}>
+                      <LayoutDashboardIcon className="mr-2" />
+                      Dashboard
+                    </Link>
+                  </DropdownMenuItem>
                   <DropdownMenuItem asChild>
                     <Link className="block w-full" to={"/profile"}>
                       <User className="mr-2" />

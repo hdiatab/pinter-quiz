@@ -1,4 +1,4 @@
-import { Route, Routes } from "react-router-dom";
+import { Route, Routes, useLocation } from "react-router-dom";
 
 import LoginPage from "./pages/Login";
 import DashboardPage from "./pages/Dashboard";
@@ -8,11 +8,26 @@ import ProtectedRoute from "./components/protected-route";
 import DefaultLayout from "./layouts/default";
 import AuthLayout from "./layouts/auth";
 import RegisterPage from "./pages/Register";
-import ProfilePage from "./pages/Profile";
+import AccountPage from "./pages/Account";
 import { useSelector } from "react-redux";
+import DashboardLayout from "./layouts/dashboard";
 
 export default function App() {
   const { isAuthenticated } = useSelector((state: any) => state.auth);
+  const location = useLocation();
+
+  const breadcrumbs = location.pathname
+    .split("?")[0]
+    .split("#")[0]
+    .split("/")
+    .filter(Boolean)
+    .map((seg, idx, arr) => {
+      const href = "/" + arr.slice(0, idx + 1).join("/");
+      const label = decodeURIComponent(seg)
+        .replace(/[-_]/g, " ")
+        .replace(/\b\w/g, (c) => c.toUpperCase());
+      return { label, href };
+    });
   return (
     <Routes>
       <Route path="/" element={<DefaultLayout />}>
@@ -37,8 +52,8 @@ export default function App() {
         />
       </Route>
       <Route element={<ProtectedRoute condition={isAuthenticated} target="/" />}>
-        <Route element={<DefaultLayout />}>
-          <Route path="profile" element={<ProfilePage />} />
+        <Route element={<DashboardLayout breadcrumbs={breadcrumbs} />}>
+          <Route path="account" element={<AccountPage />} />
           <Route path="dashboard" element={<DashboardPage />} />
         </Route>
       </Route>
