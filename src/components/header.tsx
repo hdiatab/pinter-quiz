@@ -76,15 +76,15 @@ const Header = () => {
                 <DropdownMenuSeparator />
                 <DropdownMenuGroup>
                   <DropdownMenuItem asChild>
-                    <Link className="block w-full" to={"/dashboard"}>
+                    <Link className="block w-full" to={"/home"}>
                       <LayoutDashboardIcon className="mr-2" />
-                      Dashboard
+                      Home
                     </Link>
                   </DropdownMenuItem>
                   <DropdownMenuItem asChild>
-                    <Link className="block w-full" to={"/profile"}>
+                    <Link className="block w-full" to={"/account"}>
                       <User className="mr-2" />
-                      Profile
+                      Account
                     </Link>
                   </DropdownMenuItem>
                 </DropdownMenuGroup>

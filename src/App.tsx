@@ -1,7 +1,7 @@
 import { Route, Routes, useLocation } from "react-router-dom";
 
 import LoginPage from "./pages/Login";
-import DashboardPage from "./pages/Dashboard";
+import HomePage from "./pages/Home";
 import LandingPage from "./pages/Landing";
 
 import ProtectedRoute from "./components/protected-route";
@@ -58,7 +58,7 @@ export default function App() {
       <Route element={<ProtectedRoute condition={isAuthenticated} target="/" />}>
         <Route element={<DashboardLayout breadcrumbs={breadcrumbs} />}>
           <Route path="account" element={<AccountPage />} />
-          <Route path="dashboard" element={<DashboardPage />} />
+          <Route path="home" element={<HomePage />} />
           <Route path="quiz" element={<QuizPage />} />
           <Route path="quiz/result" element={<ResultPage />} />
           <Route path="leaderboards" element={<Leaderboard />} />

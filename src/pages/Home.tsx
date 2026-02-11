@@ -6,7 +6,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
 import { useSelector } from "react-redux";
 
-export default function DashboardPage() {
+export default function HomePage() {
   const quiz = useSelector((s: any) => s.quiz);
 
   const hasInProgress = quiz?.status === "in_progress" && quiz?.questions?.length > 0;

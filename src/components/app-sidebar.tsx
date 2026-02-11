@@ -7,7 +7,7 @@ import { NavMain } from "@/components/nav-main";
 import { NavUser } from "@/components/nav-user";
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, useSidebar } from "@/components/ui/sidebar";
 import { NAV_ITEMS } from "@/constants/dashboard-navigation.constant";
-import { SidebarAccountStats } from "./sidebar-account-stats";
+import { AccountStats } from "./account-stats";
 
 export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
   const { user } = useSelector((state: any) => state.auth);
@@ -46,10 +46,10 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
       <SidebarFooter>
         <div
           className={`${
-            state !== "collapsed" ? "opacity-100" : "opacity-0"
+            state !== "collapsed" && location.pathname !== "/account" ? "opacity-100" : "opacity-0"
           } transition-opacity delay-100 duration-200 overflow-hidden`}
         >
-          {state !== "collapsed" && <SidebarAccountStats />}
+          {state !== "collapsed" && <AccountStats className="text-xs" />}
         </div>
         <NavUser user={user} />
       </SidebarFooter>

@@ -1,27 +1,64 @@
-import { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useForm, type SubmitHandler } from "react-hook-form";
 import { toast } from "sonner";
-import { Upload } from "lucide-react";
+import { Upload, Check, Eye, EyeOff } from "lucide-react";
 
 import store from "@/store/store";
 import { setUser as updateUser } from "@/store/auth/authSlice";
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
-import { Input } from "@/components/ui/input";
+import { Input, InputError } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
 
-// kalau project kamu punya textarea shadcn, pakai ini:
-import { Textarea } from "@/components/ui/textarea"; // <-- kalau error, hapus import ini + pakai fallback textarea di bawah
+import DEFAULT_COVER from "@/assets/subtle-prism.svg";
+import { AccountStats } from "@/components/account-stats";
 
 type Inputs = {
   name: string;
   email: string;
-  password?: string;
   bio?: string;
+
+  // reset password section
+  currentPassword?: string;
+  newPassword?: string;
+  confirmPassword?: string;
 };
 
-import DEFAULT_COVER from "@/assets/subtle-prism.svg";
+/* ===== password rules (copy from your register) ===== */
+const hasLowercase = (v: string) => /[a-z]/.test(v);
+const hasUppercase = (v: string) => /[A-Z]/.test(v);
+const hasNumber = (v: string) => /\d/.test(v);
+const hasSpecial = (v: string) => /[@$!%*?&]/.test(v);
+const hasMinLen = (v: string) => v.length >= 8;
+
+function formatNumber(n: number) {
+  return new Intl.NumberFormat().format(n);
+}
+
+function formatLastPlayed(ts?: number) {
+  if (!ts) return "—";
+  try {
+    return new Date(ts).toLocaleString();
+  } catch {
+    return "—";
+  }
+}
+
+function RuleItem({ ok, label, showErrors }: { ok: boolean; label: string; showErrors: boolean }) {
+  const colorClass = ok ? "text-green-600" : showErrors ? "text-red-600" : "text-muted-foreground";
+  const bulletClass = ok ? "border-green-600" : showErrors ? "border-red-600" : "border-muted-foreground/40";
+
+  return (
+    <li className={`flex items-center gap-2 text-xs ${colorClass}`}>
+      <span className={`grid h-4 w-4 place-items-center rounded-full border ${bulletClass}`}>
+        {ok ? <Check className="h-3 w-3" /> : <span className="h-1 w-1 rounded-full bg-current" />}
+      </span>
+      <span>{label}</span>
+    </li>
+  );
+}
 
 export default function ProfilePage() {
   const [user, setUser] = useState<any>(null);
@@ -30,7 +67,18 @@ export default function ProfilePage() {
   const [coverImage, setCoverImage] = useState<string>(DEFAULT_COVER);
   const [profileImage, setProfileImage] = useState<string | null>(null);
 
-  const { register, handleSubmit, reset } = useForm<Inputs>();
+  // show/hide password
+  const [showCurrentPass, setShowCurrentPass] = useState(false);
+  const [showNewPass, setShowNewPass] = useState(false);
+  const [showConfirmPass, setShowConfirmPass] = useState(false);
+
+  const {
+    register,
+    handleSubmit,
+    reset,
+    watch,
+    formState: { errors, submitCount },
+  } = useForm<Inputs>();
 
   const loggedInUserId = useMemo(() => {
     return localStorage.getItem("loggedInUser") || sessionStorage.getItem("loggedInUser");
@@ -46,12 +94,13 @@ export default function ProfilePage() {
     setProfileImage(found?.profileImage || null);
     setCoverImage(found?.coverImage || DEFAULT_COVER);
 
-    // set default values untuk form
     reset({
       name: found?.name ?? "",
       email: found?.email ?? "",
       bio: found?.bio ?? "",
-      password: "",
+      currentPassword: "",
+      newPassword: "",
+      confirmPassword: "",
     });
   }, [loggedInUserId, reset]);
 
@@ -60,22 +109,70 @@ export default function ProfilePage() {
     if (!file) return;
 
     const reader = new FileReader();
-    reader.onloadend = () => {
-      setter(reader.result as string);
-    };
+    reader.onloadend = () => setter(reader.result as string);
     reader.readAsDataURL(file);
   };
 
+  const newPasswordValue = watch("newPassword") || "";
+
+  const rules = useMemo(() => {
+    return {
+      lower: hasLowercase(newPasswordValue),
+      upper: hasUppercase(newPasswordValue),
+      number: hasNumber(newPasswordValue),
+      special: hasSpecial(newPasswordValue),
+      minLen: hasMinLen(newPasswordValue),
+    };
+  }, [newPasswordValue]);
+
+  const showRuleErrors = submitCount > 0 && !!errors.newPassword;
+
   const onSubmit: SubmitHandler<Inputs> = (data) => {
     if (!user) return;
+
+    // ===== handle reset password (optional) =====
+    const wantsChangePassword = !!data.currentPassword || !!data.newPassword || !!data.confirmPassword;
+
+    if (wantsChangePassword) {
+      if (!data.currentPassword) {
+        toast.error("Current password is required.");
+        return;
+      }
+      if (data.currentPassword !== user.password) {
+        toast.error("Current password is incorrect.");
+        return;
+      }
+      if (!data.newPassword) {
+        toast.error("New password is required.");
+        return;
+      }
+      if (data.newPassword !== data.confirmPassword) {
+        toast.error("Confirm password does not match.");
+        return;
+      }
+      const ok =
+        hasLowercase(data.newPassword) &&
+        hasUppercase(data.newPassword) &&
+        hasNumber(data.newPassword) &&
+        hasSpecial(data.newPassword) &&
+        hasMinLen(data.newPassword);
+
+      if (!ok) {
+        toast.error(
+          "Password must be at least 8 characters with one uppercase letter, one lowercase letter, one digit, and one special character."
+        );
+        return;
+      }
+    }
 
     const updatedUser = {
       ...user,
       name: data.name ?? user.name,
       bio: data.bio ?? user.bio,
-      password: data.password ? data.password : user.password,
       profileImage,
       coverImage,
+      // update password only if user changes it
+      password: wantsChangePassword ? data.newPassword : user.password,
     };
 
     const users = JSON.parse(localStorage.getItem("users") || "[]");
@@ -84,25 +181,52 @@ export default function ProfilePage() {
 
     setUser(updatedUser);
     store.dispatch(updateUser(updatedUser));
+
+    // clear password fields after save
+    reset({
+      name: updatedUser.name ?? "",
+      email: updatedUser.email ?? "",
+      bio: updatedUser.bio ?? "",
+      currentPassword: "",
+      newPassword: "",
+      confirmPassword: "",
+    });
+
     toast.success("Profile updated successfully!");
   };
 
   const onCancel = () => {
     if (!user) return;
+
     reset({
       name: user.name ?? "",
       email: user.email ?? "",
       bio: user.bio ?? "",
-      password: "",
+      currentPassword: "",
+      newPassword: "",
+      confirmPassword: "",
     });
+
     setProfileImage(user?.profileImage || null);
     setCoverImage(user?.coverImage || DEFAULT_COVER);
     toast.message("Changes reverted.");
   };
 
-  // ids untuk input file (biar bisa trigger dari button)
   const coverInputId = "cover-upload";
   const avatarInputId = "avatar-upload";
+
+  const g = user?.game ?? {};
+
+  const xp = Number(g.xp ?? 0);
+  const level = Number(g.level ?? 1);
+  const quizzesPlayed = Number(g.quizzesPlayed ?? 0);
+  const totalQuestions = Number(g.totalQuestions ?? 0);
+  const totalAnswered = Number(g.totalAnswered ?? 0);
+  const totalCorrect = Number(g.totalCorrect ?? 0);
+  const totalWrong = Number(g.totalWrong ?? 0);
+  const lastPlayedAt = typeof g.lastPlayedAt === "number" ? g.lastPlayedAt : undefined;
+
+  const accuracy = totalAnswered > 0 ? Math.round((totalCorrect / totalAnswered) * 100) : 0;
 
   return (
     <div className="max-w-2xl space-y-6 w-full mx-auto">
@@ -178,62 +302,254 @@ export default function ProfilePage() {
         </CardContent>
       </Card>
 
-      {/* Basic Information */}
+      {/* Account Stats */}
       <Card>
         <CardHeader>
-          <CardTitle>Basic Information</CardTitle>
-          <CardDescription>This information will be displayed on your public profile</CardDescription>
+          <CardTitle>Account Stats</CardTitle>
+          <CardDescription>Your level progress and total XP</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <AccountStats className="w-full" />
+        </CardContent>
+      </Card>
+
+      {/* Game Summary */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Game Summary</CardTitle>
+          <CardDescription>Quick overview of your quiz performance</CardDescription>
         </CardHeader>
 
         <CardContent className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="name">Display Name</Label>
-            <Input id="name" {...register("name")} disabled={!user} />
+          {/* Top row */}
+          <div className="grid gap-3 sm:grid-cols-2">
+            <div className="rounded-md border p-3">
+              <p className="text-xs text-muted-foreground">Accuracy</p>
+              <p className="text-2xl font-semibold tabular-nums">{accuracy}%</p>
+            </div>
+
+            <div className="rounded-md border p-3">
+              <p className="text-xs text-muted-foreground">Quizzes Played</p>
+              <p className="text-2xl font-semibold tabular-nums">{formatNumber(quizzesPlayed)}</p>
+            </div>
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="email">Email</Label>
-            <Input id="email" type="email" {...register("email")} readOnly />
+          {/* Detail row */}
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+            <div className="rounded-md border p-3">
+              <p className="text-xs text-muted-foreground">Answered</p>
+              <p className="text-base font-semibold tabular-nums">{formatNumber(totalAnswered)}</p>
+            </div>
+
+            <div className="rounded-md border p-3">
+              <p className="text-xs text-muted-foreground">Correct</p>
+              <p className="text-base font-semibold tabular-nums">{formatNumber(totalCorrect)}</p>
+            </div>
+
+            <div className="rounded-md border p-3">
+              <p className="text-xs text-muted-foreground">Wrong</p>
+              <p className="text-base font-semibold tabular-nums">{formatNumber(totalWrong)}</p>
+            </div>
+
+            <div className="rounded-md border p-3">
+              <p className="text-xs text-muted-foreground">Total Questions</p>
+              <p className="text-base font-semibold tabular-nums">{formatNumber(totalQuestions)}</p>
+            </div>
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="bio">About</Label>
-
-            {/* kalau Textarea shadcn tidak ada, ganti bagian ini dengan <textarea ...> */}
-            <Textarea
-              id="bio"
-              rows={4}
-              placeholder="Tell others about yourself"
-              {...register("bio")}
-              disabled={!user}
-            />
-
-            <p className="text-xs text-muted-foreground">You can use markdown for formatting</p>
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="password">New Password (optional)</Label>
-            <Input
-              id="password"
-              type="password"
-              placeholder="••••••••"
-              autoComplete="new-password"
-              {...register("password")}
-              disabled={!user}
-            />
+          <div className="text-sm text-muted-foreground">
+            Last played: <span className="text-foreground">{formatLastPlayed(lastPlayedAt)}</span>
           </div>
         </CardContent>
       </Card>
 
-      {/* Actions (bottom right like example) */}
-      <div className="flex justify-end gap-2">
-        <Button type="button" variant="outline" onClick={onCancel} disabled={!user}>
-          Cancel
-        </Button>
-        <Button type="button" onClick={handleSubmit(onSubmit)} disabled={!user}>
-          Save Changes
-        </Button>
-      </div>
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+        {/* Basic Information */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Basic Information</CardTitle>
+            <CardDescription>This information will be displayed on your public profile</CardDescription>
+          </CardHeader>
+
+          <CardContent className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="name">Display Name</Label>
+              <Input id="name" {...register("name", { required: "Name is required" })} disabled={!user} />
+              <InputError message={errors.name?.message} />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="email">Email</Label>
+              <Input id="email" type="email" {...register("email")} readOnly />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="bio">About</Label>
+              <Textarea
+                id="bio"
+                rows={4}
+                placeholder="Tell others about yourself"
+                {...register("bio")}
+                disabled={!user}
+              />
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Change Password */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Change Password</CardTitle>
+            <CardDescription>
+              Update your password securely <br />
+              (Only fill this section if you want to update your password.)
+            </CardDescription>
+          </CardHeader>
+
+          <CardContent className="space-y-4">
+            {/* CURRENT PASSWORD */}
+            <div className="grid gap-2">
+              <Label htmlFor="currentPassword">Current Password</Label>
+              <div className="relative">
+                <Input
+                  id="currentPassword"
+                  type={showCurrentPass ? "text" : "password"}
+                  autoComplete="current-password"
+                  className="pr-10"
+                  placeholder="••••••••••"
+                  disabled={!user}
+                  {...register("currentPassword", {
+                    validate: (v) => {
+                      // optional: kalau user mulai ngisi salah satu field, current wajib
+                      const np = watch("newPassword") || "";
+                      const cp = watch("confirmPassword") || "";
+                      const wants = !!np || !!cp || !!v;
+                      if (!wants) return true;
+                      if (!v) return "Current password is required";
+                      return true;
+                    },
+                  })}
+                />
+                <button
+                  type="button"
+                  aria-label={showCurrentPass ? "Hide password" : "Show password"}
+                  onClick={() => setShowCurrentPass((s) => !s)}
+                  className="text-muted-foreground hover:text-foreground absolute inset-y-0 right-2 grid place-items-center"
+                  tabIndex={-1}
+                  disabled={!user}
+                >
+                  {showCurrentPass ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                </button>
+              </div>
+              <InputError message={errors.currentPassword?.message} />
+            </div>
+
+            {/* NEW PASSWORD */}
+            <div className="grid gap-2">
+              <Label htmlFor="newPassword">New Password</Label>
+              <div className="relative">
+                <Input
+                  id="newPassword"
+                  type={showNewPass ? "text" : "password"}
+                  autoComplete="new-password"
+                  className="pr-10"
+                  placeholder="••••••••••"
+                  disabled={!user}
+                  {...register("newPassword", {
+                    validate: (v) => {
+                      const cur = watch("currentPassword") || "";
+                      const conf = watch("confirmPassword") || "";
+                      const wants = !!cur || !!conf || !!v;
+                      if (!wants) return true;
+
+                      const ok =
+                        hasLowercase(v || "") &&
+                        hasUppercase(v || "") &&
+                        hasNumber(v || "") &&
+                        hasSpecial(v || "") &&
+                        hasMinLen(v || "");
+                      return (
+                        ok ||
+                        "Password must be 8+ chars with uppercase, lowercase, number, and special character (@$!%*?&)"
+                      );
+                    },
+                  })}
+                />
+                <button
+                  type="button"
+                  aria-label={showNewPass ? "Hide password" : "Show password"}
+                  onClick={() => setShowNewPass((s) => !s)}
+                  className="text-muted-foreground hover:text-foreground absolute inset-y-0 right-2 grid place-items-center"
+                  tabIndex={-1}
+                  disabled={!user}
+                >
+                  {showNewPass ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                </button>
+              </div>
+              <InputError message={errors.newPassword?.message} />
+
+              {/* Rules list (only meaningful when user is changing password) */}
+              <ul className="mt-1 grid gap-1">
+                <RuleItem ok={rules.minLen} label="8+ characters" showErrors={showRuleErrors} />
+                <RuleItem ok={rules.lower} label="Lowercase letter" showErrors={showRuleErrors} />
+                <RuleItem ok={rules.upper} label="Uppercase letter" showErrors={showRuleErrors} />
+                <RuleItem ok={rules.number} label="Number" showErrors={showRuleErrors} />
+                <RuleItem ok={rules.special} label="Special character" showErrors={showRuleErrors} />
+              </ul>
+            </div>
+
+            {/* CONFIRM PASSWORD */}
+            <div className="grid gap-2">
+              <Label htmlFor="confirmPassword">Confirm New Password</Label>
+              <div className="relative">
+                <Input
+                  id="confirmPassword"
+                  type={showConfirmPass ? "text" : "password"}
+                  autoComplete="new-password"
+                  className="pr-10"
+                  placeholder="••••••••••"
+                  disabled={!user}
+                  {...register("confirmPassword", {
+                    validate: (val) => {
+                      const cur = watch("currentPassword") || "";
+                      const np = watch("newPassword") || "";
+                      const wants = !!cur || !!np || !!val;
+
+                      if (!wants) return true;
+
+                      if (!val) return "Confirm Password is required";
+                      if (np !== val) return "Your passwords do not match";
+                      return true;
+                    },
+                  })}
+                />
+
+                <button
+                  type="button"
+                  aria-label={showConfirmPass ? "Hide password" : "Show password"}
+                  onClick={() => setShowConfirmPass((s) => !s)}
+                  className="text-muted-foreground hover:text-foreground absolute inset-y-0 right-2 grid place-items-center"
+                  tabIndex={-1}
+                  disabled={!user}
+                >
+                  {showConfirmPass ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                </button>
+              </div>
+              <InputError message={errors.confirmPassword?.message} />
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Actions */}
+        <div className="flex justify-end gap-2">
+          <Button type="button" variant="outline" onClick={onCancel} disabled={!user}>
+            Cancel
+          </Button>
+          <Button type="submit" disabled={!user}>
+            Save Changes
+          </Button>
+        </div>
+      </form>
     </div>
   );
 }

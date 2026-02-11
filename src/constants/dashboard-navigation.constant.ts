@@ -2,8 +2,8 @@ import { BadgeQuestionMarkIcon, LayoutDashboardIcon, SettingsIcon, TrophyIcon, U
 
 const NAV_ITEMS = [
   {
-    title: "Dashboard",
-    url: "/dashboard",
+    title: "Home",
+    url: "/home",
     icon: LayoutDashboardIcon,
   },
   {

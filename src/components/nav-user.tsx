@@ -13,6 +13,10 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { SidebarMenu, SidebarMenuButton, SidebarMenuItem, useSidebar } from "@/components/ui/sidebar";
 import { useInitials } from "@/hooks/use-initials";
+import { useDispatch } from "react-redux";
+import { logout } from "@/store/auth/authSlice";
+import { toast } from "sonner";
+import { useNavigate } from "react-router-dom";
 
 export function NavUser({
   user,
@@ -25,6 +29,14 @@ export function NavUser({
 }) {
   const { isMobile } = useSidebar();
   const getInitials = useInitials();
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+
+  const onClickLogout = () => {
+    dispatch(logout());
+    toast.info("Logout successful!");
+    navigate("/");
+  };
 
   return (
     <SidebarMenu>
@@ -59,7 +71,7 @@ export function NavUser({
               </DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>
+            <DropdownMenuItem onClick={() => onClickLogout()}>
               <LogOut />
               Log out
             </DropdownMenuItem>
