@@ -1,4 +1,4 @@
-const KEY = "quiz_state_v1";
+const KEY = "quiz_state";
 
 export const saveQuizState = (state: any) => {
   try {

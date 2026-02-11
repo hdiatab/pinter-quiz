@@ -27,7 +27,7 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
           className={`${state === "collapsed" ? "max-md:p-2" : "p-2"} transition-all hover:bg-primary/5 rounded-full`}
         >
           <div className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground flex gap-4">
-            <div className="bg-sidebar-primary text-sidebar-primary-foreground flex aspect-square size-8 items-center justify-center rounded-full">
+            <div className="bg-primary text-primary-foreground flex aspect-square size-8 items-center justify-center rounded-full">
               <HelpCircle className="size-7" />
             </div>
 

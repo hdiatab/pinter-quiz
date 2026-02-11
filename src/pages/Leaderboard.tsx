@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { Fragment, useEffect, useMemo, useState } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
 
@@ -36,7 +36,7 @@ function getRankColor(index: number) {
   if (index === 0) return "text-yellow-500 font-semibold text-xl"; // Gold
   if (index === 1) return "text-gray-400 font-semibold text-lg"; // Silver
   if (index === 2) return "text-amber-700 font-semibold text-md"; // Bronze
-  return "text-muted-foreground";
+  return "text-muted-foreground text-sm";
 }
 
 function getInitials(name?: string) {
@@ -95,10 +95,10 @@ export default function LeaderboardsPage() {
               const isLast = index === ranked.length - 1;
 
               return (
-                <>
+                <Fragment key={index}>
                   <div key={u.id} className="flex items-center gap-4">
                     {/* Rank */}
-                    <span className={`w-6 text-center text-sm tabular-nums ${getRankColor(index)}`}>{index + 1}</span>
+                    <span className={`w-6 text-center tabular-nums ${getRankColor(index)}`}>{index + 1}</span>
 
                     {/* Avatar */}
                     <Avatar className="size-10">
@@ -127,7 +127,7 @@ export default function LeaderboardsPage() {
                   </div>
 
                   {!isLast && <Separator />}
-                </>
+                </Fragment>
               );
             })
           )}
