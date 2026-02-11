@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Separator } from "@/components/ui/separator";
 
 type UserGameStats = {
   xp: number;
@@ -31,6 +32,13 @@ const defaultGame = (): UserGameStats => ({
   totalWrong: 0,
   lastPlayedAt: undefined,
 });
+
+function getRankColor(index: number) {
+  if (index === 0) return "text-yellow-500 font-semibold text-xl"; // Gold
+  if (index === 1) return "text-gray-400 font-semibold text-lg"; // Silver
+  if (index === 2) return "text-amber-700 font-semibold text-md"; // Bronze
+  return "text-muted-foreground";
+}
 
 function getInitials(name?: string) {
   if (!name) return "??";
@@ -70,13 +78,13 @@ export default function LeaderboardsPage() {
 
   return (
     <div className="w-full max-w-2xl space-y-6 mx-auto">
-      <Card className="w-full">
-        <CardHeader>
-          <CardTitle>Top Performers</CardTitle>
-          <CardDescription>Quiz leaderboard based on XP and overall performance</CardDescription>
-        </CardHeader>
+      <div className="w-full space-y-8">
+        <div className="space-y-2">
+          <h1 className="leading-none font-semibold">Top Performers</h1>
+          <h2 className="text-muted-foreground text-sm">Quiz leaderboard based on XP and overall performance</h2>
+        </div>
 
-        <CardContent className="space-y-4">
+        <div className="space-y-4">
           {ranked.length === 0 ? (
             <p className="text-sm text-muted-foreground">No users found.</p>
           ) : (
@@ -85,39 +93,47 @@ export default function LeaderboardsPage() {
               const level = u._game.level ?? 1;
               const quizzesPlayed = u._game.quizzesPlayed ?? 0;
 
+              const isLast = index === ranked.length - 1;
+
               return (
-                <div key={u.id} className="flex items-center gap-4">
-                  {/* Rank */}
-                  <span className="w-6 text-center text-sm font-medium text-muted-foreground">{index + 1}</span>
+                <>
+                  <div key={u.id} className="flex items-center gap-4">
+                    {/* Rank */}
+                    <span className={`w-6 text-center text-sm tabular-nums ${getRankColor(index)}`}>{index + 1}</span>
 
-                  {/* Avatar */}
-                  <Avatar className="size-10">
-                    {u.profileImage ? <AvatarImage src={u.profileImage} alt={u.name} className="object-cover" /> : null}
-                    <AvatarFallback>{getInitials(u.name)}</AvatarFallback>
-                  </Avatar>
+                    {/* Avatar */}
+                    <Avatar className="size-10">
+                      {u.profileImage ? (
+                        <AvatarImage src={u.profileImage} alt={u.name} className="object-cover" />
+                      ) : null}
+                      <AvatarFallback>{getInitials(u.name)}</AvatarFallback>
+                    </Avatar>
 
-                  {/* Name + meta */}
-                  <div className="min-w-0 flex-1">
-                    <p className="truncate text-sm font-medium">{u.name || "Unnamed"}</p>
-                    <p className="truncate text-sm text-muted-foreground">
-                      {u.email || "-"}
-                      <span className="mx-2">·</span>
-                      {u._accuracy}% accuracy
-                      <span className="mx-2">·</span>
-                      {quizzesPlayed} quizzes
-                    </p>
+                    {/* Name + meta */}
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate text-sm font-medium">{u.name || "Unnamed"}</p>
+                      <p className="truncate text-sm text-muted-foreground">
+                        {u.email || "-"}
+                        <span className="mx-2">·</span>
+                        {u._accuracy}% accuracy
+                        <span className="mx-2">·</span>
+                        {quizzesPlayed} quizzes
+                      </p>
+                    </div>
+
+                    {/* Right side: Level + XP */}
+                    <span className="text-sm font-semibold tabular-nums">
+                      Lv {level} · {formatNumber(xp)} XP
+                    </span>
                   </div>
 
-                  {/* Right side: Level + XP */}
-                  <span className="text-sm font-semibold tabular-nums">
-                    Lv {level} · {formatNumber(xp)} XP
-                  </span>
-                </div>
+                  {!isLast && <Separator />}
+                </>
               );
             })
           )}
-        </CardContent>
-      </Card>
+        </div>
+      </div>
     </div>
   );
 }

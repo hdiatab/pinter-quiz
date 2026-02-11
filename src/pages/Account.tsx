@@ -21,8 +21,7 @@ type Inputs = {
   bio?: string;
 };
 
-const DEFAULT_COVER =
-  "https://deifkwefumgah.cloudfront.net/shadcnblocks/block/photos/pawel-czerwinski-O4fAgtXLRwI-unsplash.jpg";
+import DEFAULT_COVER from "@/assets/subtle-prism.svg";
 
 export default function ProfilePage() {
   const [user, setUser] = useState<any>(null);

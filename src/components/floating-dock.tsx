@@ -14,6 +14,9 @@ export function FloatingDock({ className = "" }: { className?: string }) {
         aria-label="Quick navigation"
       >
         {navItemsWithActive.map((item) => {
+          if (item.title === "Account") {
+            return;
+          }
           const Icon = item.icon;
 
           return (

@@ -1,3 +1,6 @@
+import { setUser } from "@/store/auth/authSlice";
+import store from "@/store/store";
+
 type UserGameStats = {
   xp: number;
   level: number;
@@ -82,6 +85,7 @@ export function applyQuizResultToUser({
   };
 
   const updatedUser = { ...user, game: nextGame };
+  store.dispatch(setUser(updatedUser));
   users[idx] = updatedUser;
   localStorage.setItem("users", JSON.stringify(users));
 

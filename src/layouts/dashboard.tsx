@@ -1,4 +1,5 @@
 import { AppSidebar } from "@/components/app-sidebar";
+import { FloatingAccount } from "@/components/floating-account";
 import { FloatingDock } from "@/components/floating-dock";
 import { ModeToggle } from "@/components/mode-toggle";
 import {
@@ -12,7 +13,7 @@ import {
 import { Separator } from "@/components/ui/separator";
 import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { Fragment } from "react";
-import { Link, Outlet } from "react-router-dom";
+import { Link, Outlet, useLocation } from "react-router-dom";
 
 export default function DashboardLayout({
   breadcrumbs,
@@ -22,6 +23,7 @@ export default function DashboardLayout({
     href: string;
   }[];
 }) {
+  const location = useLocation();
   return (
     <SidebarProvider>
       <AppSidebar variant="floating" collapsible="icon" />
@@ -56,7 +58,7 @@ export default function DashboardLayout({
             </Breadcrumb>
           </div>
         </header>
-
+        <FloatingAccount className={`md:hidden ${location.pathname === "/account" ? "hidden" : ""}`} />
         <div className="flex flex-1 flex-col gap-4 p-4 md:pt-0 max-md:pb-24">
           <Outlet />
         </div>
