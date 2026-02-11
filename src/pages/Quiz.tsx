@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 
@@ -7,7 +7,17 @@ import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
 
-import { answerCurrent, fetchQuiz, finishQuiz, startQuiz } from "@/store/quiz/quizSlice";
+import {
+  answerCurrent,
+  fetchQuiz,
+  finishQuiz,
+  nextQuestion,
+  pauseTimer,
+  resumeTimer,
+  startQuiz,
+} from "@/store/quiz/quizSlice";
+
+type Mode = "auto" | "manual";
 
 export default function QuizPage() {
   const dispatch = useDispatch<any>();
@@ -15,7 +25,37 @@ export default function QuizPage() {
   const quiz = useSelector((s: any) => s.quiz);
 
   /* =============================
-   * TIMER (LIVE PER DETIK)
+   * SETTINGS
+   * ============================= */
+  const [mode, setMode] = useState<Mode>("auto");
+  const [autoNextDelayMs] = useState<number>(1200);
+
+  /* =============================
+   * LOCAL STATE PER QUESTION
+   * ============================= */
+  const [selected, setSelected] = useState<string | null>(null);
+  const [revealed, setRevealed] = useState(false);
+
+  const autoNextTimeoutRef = useRef<number | null>(null);
+
+  const resetLocal = () => {
+    setSelected(null);
+    setRevealed(false);
+  };
+
+  // reset local state ketika soal berganti (jaga-jaga)
+  useEffect(() => {
+    resetLocal();
+
+    if (autoNextTimeoutRef.current) {
+      window.clearTimeout(autoNextTimeoutRef.current);
+      autoNextTimeoutRef.current = null;
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [quiz.currentIndex]);
+
+  /* =============================
+   * TIMER TICK
    * ============================= */
   const [now, setNow] = useState(() => Date.now());
 
@@ -25,11 +65,18 @@ export default function QuizPage() {
     return () => clearInterval(id);
   }, [quiz.status]);
 
+  // IMPORTANT: perhitungan elapsed harus mengurangi paused duration
   const remainingSec = useMemo(() => {
     if (!quiz.startedAt) return quiz.durationSec;
-    const elapsed = Math.floor((now - quiz.startedAt) / 1000);
+
+    const pausedMsTotal = quiz.pausedMsTotal ?? 0;
+    const pausedAt = quiz.pausedAt ?? null;
+
+    const pausedSoFar = pausedMsTotal + (pausedAt ? now - pausedAt : 0);
+    const elapsed = Math.floor((now - quiz.startedAt - pausedSoFar) / 1000);
+
     return Math.max(0, quiz.durationSec - elapsed);
-  }, [now, quiz.startedAt, quiz.durationSec]);
+  }, [now, quiz.startedAt, quiz.durationSec, quiz.pausedMsTotal, quiz.pausedAt]);
 
   /* =============================
    * FETCH & START (GUARDED)
@@ -64,17 +111,93 @@ export default function QuizPage() {
   }, [quiz.status, navigate]);
 
   /* =============================
-   * LOADING SKELETON
+   * LOADING
    * ============================= */
-  if (quiz.status === "loading" || !quiz.questions?.length) {
-    return <QuizSkeleton />;
-  }
+  if (quiz.status === "loading" || !quiz.questions?.length) return <QuizSkeleton />;
 
   const q = quiz.questions[quiz.currentIndex];
   if (!q) return <QuizSkeleton />;
 
+  const correctAnswer: string | undefined = q.correct_answer;
+
   const mm = String(Math.floor(remainingSec / 60)).padStart(2, "0");
   const ss = String(remainingSec % 60).padStart(2, "0");
+
+  /* =============================
+   * STYLING OPTIONS
+   * - warna benar/salah HANYA muncul setelah revealed === true
+   * ============================= */
+  function getAnswerClass(a: string) {
+    if (!revealed) {
+      if (selected === a) return "border-primary";
+      return "";
+    }
+
+    const isCorrect = a === correctAnswer;
+    const isSelected = a === selected;
+
+    if (isCorrect) return "!bg-green-600 !text-white hover:!bg-green-600 !border-green-600";
+    if (isSelected && !isCorrect) return "!bg-red-600 !text-white hover:!bg-red-600 !border-red-600";
+    return "";
+  }
+
+  /* =============================
+   * NAV HELPERS (avoid green flash)
+   * ============================= */
+  const goNextClean = () => {
+    // 1) hapus efek warna dulu (important)
+    resetLocal();
+    // 2) pindah soal
+    dispatch(nextQuestion());
+  };
+
+  /* =============================
+   * HANDLERS
+   * ============================= */
+  const handlePick = (a: string) => {
+    if (revealed) return;
+
+    if (mode === "manual") {
+      setSelected(a);
+      return;
+    }
+
+    // AUTO mode: pick => reveal => delay => next
+    setSelected(a);
+    setRevealed(true);
+
+    // simpan jawaban tanpa advance
+    dispatch(answerCurrent({ selected: a, advance: false }));
+
+    autoNextTimeoutRef.current = window.setTimeout(() => {
+      goNextClean();
+    }, autoNextDelayMs);
+  };
+
+  const handleSubmit = () => {
+    if (mode !== "manual") return;
+    if (!selected || revealed) return;
+
+    setRevealed(true);
+
+    // simpan jawaban tanpa advance
+    dispatch(answerCurrent({ selected, advance: false }));
+
+    // pause timer (secara hitungan)
+    dispatch(pauseTimer());
+  };
+
+  const handleContinue = () => {
+    if (mode !== "manual") return;
+    if (!revealed) return;
+
+    // resume timer dulu, baru next
+    dispatch(resumeTimer());
+    goNextClean();
+  };
+
+  const showSubmit = mode === "manual" && !!selected && !revealed;
+  const showContinue = mode === "manual" && revealed;
 
   return (
     <div className="space-y-4">
@@ -90,40 +213,65 @@ export default function QuizPage() {
         </div>
       </div>
 
+      {/* Mode switch (optional) */}
+      <div className="flex items-center gap-2">
+        <Button variant={mode === "auto" ? "default" : "outline"} onClick={() => setMode("auto")}>
+          Auto
+        </Button>
+        <Button variant={mode === "manual" ? "default" : "outline"} onClick={() => setMode("manual")}>
+          Manual
+        </Button>
+
+        {mode === "auto" && <div className="text-xs text-muted-foreground">Delay: {autoNextDelayMs}ms</div>}
+        {mode === "manual" && quiz.pausedAt && <div className="text-xs text-muted-foreground">Timer paused</div>}
+      </div>
+
       {/* Question Card */}
-      <Card>
-        <CardHeader className="space-y-1">
-          <CardTitle className="text-base">
-            Question {quiz.currentIndex + 1} / {quiz.totalCount}
-          </CardTitle>
-          <div className="text-sm text-muted-foreground">
-            {q.category} · {q.difficulty}
-          </div>
-        </CardHeader>
+      {/* key={q.id} => memastikan remount saat soal berubah (anti “flash hijau”) */}
+      <div key={q.id}>
+        <Card>
+          <CardHeader className="space-y-1">
+            <CardTitle className="text-base">
+              Question {quiz.currentIndex + 1} / {quiz.totalCount}
+            </CardTitle>
+            <div className="text-sm text-muted-foreground">
+              {q.category} · {q.difficulty}
+            </div>
+          </CardHeader>
 
-        <Separator />
+          <Separator />
 
-        <CardContent className="space-y-3 pt-4">
-          <div className="text-sm leading-relaxed">{q.question}</div>
+          <CardContent className="space-y-3 pt-4">
+            <div className="text-sm leading-relaxed">{q.question}</div>
 
-          <div className="grid gap-2">
-            {q.answers.map((a: string) => (
-              <Button
-                key={a}
-                variant="outline"
-                className="justify-start"
-                onClick={() => dispatch(answerCurrent({ selected: a }))}
-              >
-                {a}
+            <div className="grid gap-2">
+              {q.answers.map((a: string) => (
+                <Button
+                  key={a}
+                  variant="outline"
+                  className={`justify-start ${getAnswerClass(a)}`}
+                  onClick={() => handlePick(a)}
+                  disabled={mode === "manual" && revealed} // manual: lock setelah submit
+                >
+                  {a}
+                </Button>
+              ))}
+            </div>
+
+            {showSubmit && (
+              <Button onClick={handleSubmit} className="w-full">
+                Submit
               </Button>
-            ))}
-          </div>
+            )}
 
-          <div className="text-xs text-muted-foreground">
-            Selecting an answer will automatically move to the next question.
-          </div>
-        </CardContent>
-      </Card>
+            {showContinue && (
+              <Button onClick={handleContinue} className="w-full">
+                Continue
+              </Button>
+            )}
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 }
@@ -134,7 +282,6 @@ export default function QuizPage() {
 function QuizSkeleton() {
   return (
     <div className="space-y-4">
-      {/* Top bar skeleton */}
       <div className="flex items-center justify-between">
         <Skeleton className="h-4 w-40" />
         <Skeleton className="h-4 w-16" />

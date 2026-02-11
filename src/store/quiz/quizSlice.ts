@@ -24,6 +24,8 @@ type QuizState = {
   startedAt: number | null; // Date.now()
   durationSec: number; // bebas, misal 120
   finishedAt: number | null;
+  pausedAt: number | null; // Date.now() saat pause dimulai
+  pausedMsTotal: number; // akumulasi durasi pause dalam ms
 };
 
 const initialState: QuizState = {
@@ -38,6 +40,8 @@ const initialState: QuizState = {
   startedAt: null,
   durationSec: 120,
   finishedAt: null,
+  pausedAt: null,
+  pausedMsTotal: 0,
 };
 
 // helper
@@ -116,10 +120,14 @@ const quizSlice = createSlice({
       state.wrongCount = 0;
       state.startedAt = Date.now();
       state.finishedAt = null;
+      state.startedAt = Date.now();
+      state.finishedAt = null;
+      state.pausedAt = null;
+      state.pausedMsTotal = 0;
       if (action.payload?.durationSec) state.durationSec = action.payload.durationSec;
       state.totalCount = state.questions.length;
     },
-    answerCurrent: (state, action: PayloadAction<{ selected: string }>) => {
+    answerCurrent: (state, action: PayloadAction<{ selected: string; advance?: boolean }>) => {
       const q = state.questions[state.currentIndex];
       if (!q) return;
 
@@ -133,7 +141,21 @@ const quizSlice = createSlice({
       state.correctCount += correct ? 1 : 0;
       state.wrongCount += correct ? 0 : 1;
 
-      // auto-next
+      // advance default = true (biar behaviour lama tetap)
+      const shouldAdvance = action.payload.advance ?? true;
+      if (!shouldAdvance) return;
+
+      const next = state.currentIndex + 1;
+      if (next >= state.questions.length) {
+        state.status = "finished";
+        state.finishedAt = Date.now();
+      } else {
+        state.currentIndex = next;
+      }
+    },
+    nextQuestion: (state) => {
+      if (state.status !== "in_progress") return;
+
       const next = state.currentIndex + 1;
       if (next >= state.questions.length) {
         state.status = "finished";
@@ -147,6 +169,17 @@ const quizSlice = createSlice({
       state.finishedAt = Date.now();
     },
     resetQuiz: () => initialState,
+    pauseTimer: (state) => {
+      if (state.status !== "in_progress") return;
+      if (state.pausedAt) return; // already paused
+      state.pausedAt = Date.now();
+    },
+    resumeTimer: (state) => {
+      if (state.status !== "in_progress") return;
+      if (!state.pausedAt) return;
+      state.pausedMsTotal += Date.now() - state.pausedAt;
+      state.pausedAt = null;
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -164,7 +197,16 @@ const quizSlice = createSlice({
   },
 });
 
-export const { startQuiz, answerCurrent, finishQuiz, resetQuiz, hydrateFromStorage } = quizSlice.actions;
+export const {
+  startQuiz,
+  answerCurrent,
+  finishQuiz,
+  resetQuiz,
+  hydrateFromStorage,
+  nextQuestion,
+  pauseTimer,
+  resumeTimer,
+} = quizSlice.actions;
 
 const { reducer: quizReducer } = quizSlice;
 
