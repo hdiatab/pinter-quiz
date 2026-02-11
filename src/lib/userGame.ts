@@ -1,7 +1,7 @@
 import { setUser } from "@/store/auth/authSlice";
 import store from "@/store/store";
 
-type UserGameStats = {
+export type UserGameStats = {
   xp: number;
   level: number;
   quizzesPlayed: number;
@@ -12,7 +12,7 @@ type UserGameStats = {
   lastPlayedAt?: number;
 };
 
-const defaultGame = (): UserGameStats => ({
+const DEFAULT_GAME: UserGameStats = {
   xp: 0,
   level: 1,
   quizzesPlayed: 0,
@@ -21,7 +21,23 @@ const defaultGame = (): UserGameStats => ({
   totalCorrect: 0,
   totalWrong: 0,
   lastPlayedAt: undefined,
-});
+};
+
+export function xpRequiredForLevel(level: number) {
+  if (level <= 1) return 0;
+  return (100 * (level - 1) * level) / 2;
+}
+
+export function xpRangeForLevel(level: number) {
+  return Math.max(1, level) * 100;
+}
+
+export function calcLevelFromXp(xp: number) {
+  const safeXp = Math.max(0, xp);
+  const s = safeXp / 100;
+  const root = (1 + Math.sqrt(1 + 8 * s)) / 2;
+  return Math.max(1, Math.floor(root));
+}
 
 function calcXpGain({
   correct,
@@ -40,8 +56,33 @@ function calcXpGain({
   return xp;
 }
 
-function calcLevelFromXp(xp: number) {
-  return Math.floor(xp / 200) + 1;
+function safeReadUsers(): any[] {
+  try {
+    const raw = localStorage.getItem("users");
+    const parsed = raw ? JSON.parse(raw) : [];
+    return Array.isArray(parsed) ? parsed : [];
+  } catch {
+    return [];
+  }
+}
+
+function safeWriteUsers(users: any[]) {
+  localStorage.setItem("users", JSON.stringify(users));
+}
+
+function normalizeGame(input: Partial<UserGameStats> | undefined): UserGameStats {
+  const g = input ?? {};
+  const xp = Number(g.xp ?? 0);
+  return {
+    xp,
+    level: Number(g.level ?? calcLevelFromXp(xp)),
+    quizzesPlayed: Number(g.quizzesPlayed ?? 0),
+    totalQuestions: Number(g.totalQuestions ?? 0),
+    totalAnswered: Number(g.totalAnswered ?? 0),
+    totalCorrect: Number(g.totalCorrect ?? 0),
+    totalWrong: Number(g.totalWrong ?? 0),
+    lastPlayedAt: typeof g.lastPlayedAt === "number" ? g.lastPlayedAt : undefined,
+  };
 }
 
 export function applyQuizResultToUser({
@@ -59,35 +100,47 @@ export function applyQuizResultToUser({
   wrong: number;
   finishedBeforeTimeout: boolean;
 }) {
-  const users = JSON.parse(localStorage.getItem("users") || "[]");
-  const idx = users.findIndex((u: any) => u.id === userId);
+  const users = safeReadUsers();
+  const idx = users.findIndex((u: any) => u?.id === userId);
   if (idx < 0) return null;
 
   const user = users[idx];
-  const game: UserGameStats = user.game ? user.game : defaultGame();
+  const game = normalizeGame(user?.game ?? DEFAULT_GAME);
 
-  const accuracy = answered > 0 ? correct / answered : 0;
-  const xpGain = calcXpGain({ correct, wrong, accuracy, finishedBeforeTimeout });
+  const safeAnswered = Math.max(0, Number(answered) || 0);
+  const safeCorrect = Math.max(0, Number(correct) || 0);
+  const safeWrong = Math.max(0, Number(wrong) || 0);
+  const safeTotalQuestions = Math.max(0, Number(totalQuestions) || 0);
 
-  const nextXp = (game.xp || 0) + xpGain;
+  const accuracy = safeAnswered > 0 ? safeCorrect / safeAnswered : 0;
+  const xpGain = calcXpGain({
+    correct: safeCorrect,
+    wrong: safeWrong,
+    accuracy,
+    finishedBeforeTimeout: !!finishedBeforeTimeout,
+  });
+
+  const nextXp = game.xp + xpGain;
   const nextLevel = calcLevelFromXp(nextXp);
 
   const nextGame: UserGameStats = {
     ...game,
     xp: nextXp,
     level: nextLevel,
-    quizzesPlayed: (game.quizzesPlayed || 0) + 1,
-    totalQuestions: (game.totalQuestions || 0) + totalQuestions,
-    totalAnswered: (game.totalAnswered || 0) + answered,
-    totalCorrect: (game.totalCorrect || 0) + correct,
-    totalWrong: (game.totalWrong || 0) + wrong,
+    quizzesPlayed: game.quizzesPlayed + 1,
+    totalQuestions: game.totalQuestions + safeTotalQuestions,
+    totalAnswered: game.totalAnswered + safeAnswered,
+    totalCorrect: game.totalCorrect + safeCorrect,
+    totalWrong: game.totalWrong + safeWrong,
     lastPlayedAt: Date.now(),
   };
 
   const updatedUser = { ...user, game: nextGame };
-  store.dispatch(setUser(updatedUser));
-  users[idx] = updatedUser;
-  localStorage.setItem("users", JSON.stringify(users));
 
-  return { updatedUser, xpGain };
+  // persist + update store
+  users[idx] = updatedUser;
+  safeWriteUsers(users);
+  store.dispatch(setUser(updatedUser));
+
+  return { updatedUser, xpGain, nextGame };
 }

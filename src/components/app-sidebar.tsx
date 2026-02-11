@@ -7,6 +7,7 @@ import { NavMain } from "@/components/nav-main";
 import { NavUser } from "@/components/nav-user";
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, useSidebar } from "@/components/ui/sidebar";
 import { NAV_ITEMS } from "@/constants/dashboard-navigation.constant";
+import { SidebarAccountStats } from "./sidebar-account-stats";
 
 export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
   const { user } = useSelector((state: any) => state.auth);
@@ -38,11 +39,18 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
         </Link>
       </SidebarHeader>
 
-      <SidebarContent>
+      <SidebarContent className="overflow-hidden">
         <NavMain items={navItemsWithActive} />
       </SidebarContent>
 
       <SidebarFooter>
+        <div
+          className={`${
+            state !== "collapsed" ? "opacity-100" : "opacity-0"
+          } transition-opacity delay-100 duration-200 overflow-hidden`}
+        >
+          {state !== "collapsed" && <SidebarAccountStats />}
+        </div>
         <NavUser user={user} />
       </SidebarFooter>
     </Sidebar>
