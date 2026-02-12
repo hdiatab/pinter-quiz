@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+  viewBox="0 0 24 24" fill="none" class="lucide lucide-circle-question-mark size-7"
+  aria-hidden="true">
+
+  <!-- 1) ring putih luar -->
+  <circle cx="12" cy="12" r="12" fill="white"></circle>
+
+  <!-- 2) ring hitam -->
+  <circle cx="12" cy="12" r="10" fill="none" stroke="black" stroke-width="2"></circle>
+
+  <!-- 4) tanda tanya (hitam) -->
+  <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"
+    fill="none" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
+  <path d="M12 17h.01"
+    fill="none" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
