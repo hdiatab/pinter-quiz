@@ -75,7 +75,6 @@ type FooterProps = {
 export default function SiteFooter({
   className,
   columns = DEFAULT_COLUMNS,
-  brandHref = "/",
   brandLabel = "hdiatab",
   year = new Date().getFullYear(),
 }: FooterProps) {

@@ -1,7 +1,6 @@
 import { AppSidebar } from "@/components/app-sidebar";
 import { FloatingAccount } from "@/components/floating-account";
 import { FloatingDock } from "@/components/floating-dock";
-import { ModeToggle } from "@/components/mode-toggle";
 import {
   Breadcrumb,
   BreadcrumbItem,

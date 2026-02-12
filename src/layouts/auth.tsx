@@ -1,5 +1,4 @@
 import { Link } from "react-router";
-import logo from "/fav-icon.png";
 import { HelpCircleIcon } from "lucide-react";
 
 const AuthLayout = ({

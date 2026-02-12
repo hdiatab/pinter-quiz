@@ -153,7 +153,7 @@ function heroCopyByLevel(level: number) {
   };
 }
 
-function sectionHeading(diff: Difficulty, type: QuizType, level: number) {
+function sectionHeading(diff: Difficulty, type: QuizType) {
   const diffLabel = sectionTitle(diff);
   const typeLabel = quizTypeLabel(type);
 
@@ -325,7 +325,7 @@ function QuizCarouselSection({
   return (
     <div className="space-y-3">
       <div>
-        <h2 className="text-sm font-medium">{sectionHeading(diff, type, level)}</h2>
+        <h2 className="text-sm font-medium">{sectionHeading(diff, type)}</h2>
         <p className="text-xs text-muted-foreground">{sectionSubheading(diff, type, level)}</p>
       </div>
 

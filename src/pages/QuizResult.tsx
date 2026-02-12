@@ -1,24 +1,14 @@
-// ResultPage.tsx (FULL FILE) — English version
-// - Difficulty-based XP (requires passing quiz.answers)
-// - Stars based on accuracy (5 perfect, 4 >=80%, 3 >=60%, 2 >=40%, 1 >0, 0 otherwise)
-// - Shows XP gained, tokens gained, level up info
-// - BIG 5-burst confetti when level up (reliable: uses its own fullscreen canvas + zIndex 9999)
-// - Also confetti when perfect (smaller)
-
 import { useEffect, useMemo, useRef, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { Link, useNavigate } from "react-router-dom";
+import { useSelector } from "react-redux";
 
 import confetti from "canvas-confetti";
 import { motion } from "framer-motion";
 import { Trophy, Sparkles, ArrowUp, Coins, Timer, CheckCircle2, XCircle } from "lucide-react";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 
-import { resetQuiz } from "@/store/quiz/quizSlice";
 import { applyQuizResultToUser } from "@/lib/userGame";
 import { toast } from "sonner";
 import { StarRating } from "@/components/ui/star-rating";
@@ -127,8 +117,6 @@ type AppliedRewardPayload = {
 };
 
 export default function ResultPage() {
-  const dispatch = useDispatch();
-  const navigate = useNavigate();
   const quiz = useSelector((s: any) => s.quiz);
 
   const didApplyRef = useRef(false);

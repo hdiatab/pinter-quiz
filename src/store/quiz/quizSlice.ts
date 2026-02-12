@@ -120,7 +120,7 @@ const quizSlice = createSlice({
   name: "quiz",
   initialState,
   reducers: {
-    hydrateFromStorage: (state, action: PayloadAction<QuizState>) => {
+    hydrateFromStorage: (_, action: PayloadAction<QuizState>) => {
       return action.payload;
     },
 
