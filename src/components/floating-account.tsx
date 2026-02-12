@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { useSelector } from "react-redux";
-import { BellIcon } from "lucide-react";
+import { Expand, Shrink } from "lucide-react";
+import * as React from "react";
 
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { buttonVariants } from "./ui/button";
@@ -13,13 +14,30 @@ export function FloatingAccount({ ...props }: React.ComponentProps<"div">) {
   const { user } = useSelector((state: any) => state.auth);
   const getInitials = useInitials();
 
+  const [isFullscreen, setIsFullscreen] = React.useState<boolean>(Boolean(document.fullscreenElement));
+
+  React.useEffect(() => {
+    const onChange = () => setIsFullscreen(Boolean(document.fullscreenElement));
+    document.addEventListener("fullscreenchange", onChange);
+    return () => document.removeEventListener("fullscreenchange", onChange);
+  }, []);
+
+  const toggleFullscreen = async () => {
+    try {
+      if (!document.fullscreenElement) {
+        await document.documentElement.requestFullscreen();
+      } else {
+        await document.exitFullscreen();
+      }
+    } catch {
+      // biasanya gagal kalau bukan dari user gesture / diblok browser
+    }
+  };
+
   const xpTotal = Number(user?.game?.xp ?? 0);
-
   const level = calcLevelFromXp(xpTotal);
-
   const levelStartXp = xpRequiredForLevel(level);
   const levelSize = xpRangeForLevel(level);
-
   const xpInLevel = Math.max(0, xpTotal - levelStartXp);
   const progress = Math.min(100, Math.round((xpInLevel / levelSize) * 100));
 
@@ -56,17 +74,19 @@ export function FloatingAccount({ ...props }: React.ComponentProps<"div">) {
           <div className="shrink-0 text-xs font-medium tabular-nums text-muted-foreground">{xpTotal} XP</div>
         </div>
 
-        {/* Right: Notifications */}
-        <Link
-          to={"/notification"}
+        {/* Right: Fullscreen toggle */}
+        <button
+          type="button"
+          onClick={toggleFullscreen}
           className={buttonVariants({
             variant: "outline",
             size: "icon",
             className: "!rounded-full size-10 shrink-0",
           })}
+          aria-label={isFullscreen ? "Exit fullscreen" : "Enter fullscreen"}
         >
-          <BellIcon className="h-4 w-4" />
-        </Link>
+          {isFullscreen ? <Shrink className="h-4 w-4" /> : <Expand className="h-4 w-4" />}
+        </button>
       </nav>
     </div>
   );

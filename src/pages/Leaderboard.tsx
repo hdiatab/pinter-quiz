@@ -2,6 +2,7 @@ import { Fragment, useEffect, useMemo, useState } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Link } from "react-router-dom";
 
 type UserGameStats = {
   xp: number;
@@ -84,12 +85,12 @@ export default function LeaderboardsPage() {
           <p className="text-muted-foreground text-sm">Quiz leaderboard based on XP and overall performance</p>
         </div>
 
-        <Card>
+        <Card className="py-2 sm:py-4">
           <CardHeader className="sr-only">
             <CardTitle>Top Performers</CardTitle>
             <CardDescription>Quiz leaderboard based on XP and overall performance</CardDescription>
           </CardHeader>
-          <CardContent className="space-y-6">
+          <CardContent className="space-y-2 sm:space-y-4 px-2 sm:px-4">
             {ranked.length === 0 ? (
               <p className="text-sm text-muted-foreground">No users found.</p>
             ) : (
@@ -101,36 +102,42 @@ export default function LeaderboardsPage() {
                 const isLast = index === ranked.length - 1;
 
                 return (
-                  <Fragment key={index}>
-                    <div key={u.id} className="flex items-center gap-4">
-                      {/* Rank */}
-                      <span className={`w-6 text-center tabular-nums ${getRankColor(index)}`}>{index + 1}</span>
+                  <Fragment key={u.id}>
+                    <Link
+                      to={`/account/${u.id}`}
+                      className="block rounded-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                      aria-label={`Open profile of ${u.name}`}
+                    >
+                      <div className="flex items-center gap-4 p-2 hover:bg-muted/50 transition-colors rounded-full px-4 ">
+                        {/* Rank */}
+                        <span className={`w-6 text-center tabular-nums ${getRankColor(index)}`}>{index + 1}</span>
 
-                      {/* Avatar */}
-                      <Avatar className="size-10">
-                        {u.profileImage ? (
-                          <AvatarImage src={u.profileImage} alt={u.name} className="object-cover" />
-                        ) : null}
-                        <AvatarFallback>{getInitials(u.name)}</AvatarFallback>
-                      </Avatar>
+                        {/* Avatar */}
+                        <Avatar className="size-10">
+                          {u.profileImage ? (
+                            <AvatarImage src={u.profileImage} alt={u.name} className="object-cover" />
+                          ) : null}
+                          <AvatarFallback>{getInitials(u.name)}</AvatarFallback>
+                        </Avatar>
 
-                      {/* Name + meta */}
-                      <div className="min-w-0 flex-1">
-                        <p className="truncate text-sm font-medium">{u.name || "Unnamed"}</p>
-                        <p className="truncate text-sm text-muted-foreground">
-                          {u.email || "-"}
-                          <span className="mx-2">·</span>
-                          {u._accuracy}% accuracy
-                          <span className="mx-2">·</span>
-                          {quizzesPlayed} quizzes
-                        </p>
+                        {/* Name + meta */}
+                        <div className="min-w-0 flex-1 text-xs">
+                          <p className="truncate font-medium">{u.name || "Unnamed"}</p>
+                          <p className="truncate text-muted-foreground max-sm:flex max-sm:flex-col">
+                            <span className="truncate">{u.email || "-"}</span>
+                            <span className="mx-2 max-sm:hidden">·</span>
+                            <span className="truncate">{u._accuracy}% accuracy</span>
+                            <span className="mx-2 max-sm:hidden">·</span>
+                            <span className="truncate">{quizzesPlayed} quizzes</span>
+                          </p>
+                        </div>
+
+                        {/* Right side: Level + XP */}
+                        <span className="text-sm font-semibold tabular-nums">
+                          Lv {level} · {formatNumber(xp)} XP
+                        </span>
                       </div>
-
-                      {/* Right side: Level + XP */}
-                      <span className="text-sm font-semibold tabular-nums">
-                        Lv {level} · {formatNumber(xp)} XP
-                      </span>
-                    </div>
+                    </Link>
 
                     {!isLast && <Separator />}
                   </Fragment>

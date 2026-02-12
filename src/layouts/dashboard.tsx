@@ -28,16 +28,34 @@ const widthClass: Record<ContentMaxWidth, string> = {
   full: "max-w-full",
 };
 
-export default function DashboardLayout({
-  breadcrumbs,
-}: {
-  breadcrumbs: {
-    label: string;
-    href: string;
-  }[];
-}) {
+export default function DashboardLayout() {
   const location = useLocation();
   const contentMaxWidth = useSelector((s: any) => s.settings.contentMaxWidth) as ContentMaxWidth;
+
+  const breadcrumbs = location.pathname
+    .split("?")[0]
+    .split("#")[0]
+    .split("/")
+    .filter(Boolean)
+    .filter((seg, idx, arr) => {
+      // hide id untuk route /users/:id  (hapus segmen setelah "users")
+      if (arr[idx - 1] === "users") return false;
+
+      // opsional: hide segmen yang purely angka (misal 123)
+      if (/^\d+$/.test(seg)) return false;
+
+      // opsional: hide segmen yang looks like uuid
+      if (/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(seg)) return false;
+
+      return true;
+    })
+    .map((seg, idx, arr) => {
+      const href = "/" + arr.slice(0, idx + 1).join("/");
+      const label = decodeURIComponent(seg)
+        .replace(/[-_]/g, " ")
+        .replace(/\b\w/g, (c) => c.toUpperCase());
+      return { label, href };
+    });
 
   return (
     <SidebarProvider>

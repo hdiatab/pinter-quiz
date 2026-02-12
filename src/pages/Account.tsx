@@ -241,7 +241,6 @@ export default function ProfilePage() {
               type="button"
               variant="secondary"
               size="sm"
-              className="shadow-md"
               onClick={() => document.getElementById(coverInputId)?.click()}
             >
               <Upload className="mr-2 size-4" />
@@ -276,7 +275,7 @@ export default function ProfilePage() {
                 type="button"
                 variant="secondary"
                 size="icon"
-                className="absolute -bottom-1 -right-1 size-8 rounded-full shadow-md"
+                className="absolute -bottom-1 -right-1 size-8 rounded-full"
                 onClick={() => document.getElementById(avatarInputId)?.click()}
               >
                 <Upload className="size-4" />
@@ -320,7 +319,7 @@ export default function ProfilePage() {
 
         <CardContent className="space-y-4">
           {/* Top row */}
-          <div className="grid gap-3 sm:grid-cols-2">
+          <div className="grid gap-3 grid-cols-2">
             <div className="rounded-md border p-3">
               <p className="text-xs text-muted-foreground">Accuracy</p>
               <p className="text-2xl font-semibold tabular-nums">{accuracy}%</p>

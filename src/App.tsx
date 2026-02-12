@@ -1,4 +1,4 @@
-import { Route, Routes, useLocation } from "react-router-dom";
+import { Route, Routes } from "react-router-dom";
 
 import LoginPage from "./pages/Login";
 import HomePage from "./pages/Home";
@@ -17,23 +17,11 @@ import Leaderboard from "./pages/Leaderboard";
 import StartQuizPage from "./pages/StartQuiz";
 import NotFoundSection from "./pages/NotFound";
 import SettingPage from "./pages/Setting";
+import UserProfilePage from "./pages/UserProfile";
 
 export default function App() {
   const { isAuthenticated } = useSelector((state: any) => state.auth);
-  const location = useLocation();
 
-  const breadcrumbs = location.pathname
-    .split("?")[0]
-    .split("#")[0]
-    .split("/")
-    .filter(Boolean)
-    .map((seg, idx, arr) => {
-      const href = "/" + arr.slice(0, idx + 1).join("/");
-      const label = decodeURIComponent(seg)
-        .replace(/[-_]/g, " ")
-        .replace(/\b\w/g, (c) => c.toUpperCase());
-      return { label, href };
-    });
   return (
     <Routes>
       <Route path="/" element={<DefaultLayout />}>
@@ -58,7 +46,7 @@ export default function App() {
         />
       </Route>
       <Route element={<ProtectedRoute condition={isAuthenticated} target="/" />}>
-        <Route element={<DashboardLayout breadcrumbs={breadcrumbs} />}>
+        <Route element={<DashboardLayout />}>
           <Route path="account" element={<AccountPage />} />
           <Route path="home" element={<HomePage />} />
           <Route path="quiz" element={<QuizPage />} />
@@ -66,6 +54,7 @@ export default function App() {
           <Route path="leaderboards" element={<Leaderboard />} />
           <Route path="start-quiz" element={<StartQuizPage />} />
           <Route path="settings" element={<SettingPage />} />
+          <Route path="account/:id" element={<UserProfilePage />} />
         </Route>
       </Route>
       <Route path="*" element={<DefaultLayout />}>

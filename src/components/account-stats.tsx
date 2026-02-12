@@ -5,12 +5,16 @@ import { cn } from "@/lib/utils";
 
 import { calcLevelFromXp, xpRequiredForLevel, xpRangeForLevel } from "@/lib/userGame";
 
-type AccountStatsProps = React.ComponentPropsWithoutRef<"div">;
+type AccountStatsProps = React.ComponentPropsWithoutRef<"div"> & {
+  user?: any; // user target (optional). kalau tidak ada -> fallback redux auth user
+};
 
-export function AccountStats({ className, ...props }: AccountStatsProps) {
-  const { user } = useSelector((state: any) => state.auth);
+export function AccountStats({ user: userProp, className, ...props }: AccountStatsProps) {
+  const { user: authUser } = useSelector((state: any) => state.auth);
 
-  const xpTotal = Number(user?.game?.xp ?? 0);
+  const activeUser = userProp ?? authUser;
+
+  const xpTotal = Number(activeUser?.game?.xp ?? 0);
   const level = calcLevelFromXp(xpTotal);
 
   const levelStartXp = xpRequiredForLevel(level);
