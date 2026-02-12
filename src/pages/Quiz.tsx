@@ -1,5 +1,15 @@
+// ==============================
+// QuizPage.tsx (FULL FILE) — English version
+// - Answers become 2 columns on screens >= sm
+// - Progress indicators (small squares) above the question card
+//   * Correct  -> green
+//   * Wrong    -> red
+//   * Unanswered -> border only
+//   * Current  -> high-contrast + ring
+// ==============================
+
 import { useEffect, useMemo, useRef, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -17,10 +27,14 @@ import {
   startQuiz,
 } from "@/store/quiz/quizSlice";
 
+import { spendUserTokens } from "@/lib/userGame";
+
 export default function QuizPage() {
   const dispatch = useDispatch<any>();
   const navigate = useNavigate();
+
   const quiz = useSelector((s: any) => s.quiz);
+  const { user } = useSelector((s: any) => s.auth);
 
   /* =============================
    * SETTINGS
@@ -33,14 +47,18 @@ export default function QuizPage() {
   const [selected, setSelected] = useState<string | null>(null);
   const [revealed, setRevealed] = useState(false);
 
+  // Hint: disabled answers on current question
+  const [disabledAnswers, setDisabledAnswers] = useState<Set<string>>(new Set());
+
   const autoNextTimeoutRef = useRef<number | null>(null);
 
   const resetLocal = () => {
     setSelected(null);
     setRevealed(false);
+    setDisabledAnswers(new Set());
   };
 
-  // reset local state ketika soal berganti (jaga-jaga)
+  // Reset local state when question changes (and cancel pending auto-next)
   useEffect(() => {
     resetLocal();
 
@@ -58,11 +76,11 @@ export default function QuizPage() {
 
   useEffect(() => {
     if (quiz.status !== "in_progress") return;
-    const id = setInterval(() => setNow(Date.now()), 1000);
-    return () => clearInterval(id);
+    const id = window.setInterval(() => setNow(Date.now()), 1000);
+    return () => window.clearInterval(id);
   }, [quiz.status]);
 
-  // IMPORTANT: perhitungan elapsed harus mengurangi paused duration
+  // elapsed must subtract paused duration
   const remainingSec = useMemo(() => {
     if (!quiz.startedAt) return quiz.durationSec;
 
@@ -108,23 +126,82 @@ export default function QuizPage() {
   }, [quiz.status, navigate]);
 
   /* =============================
-   * LOADING
+   * SAFE QUESTION ACCESS (NO HOOK ORDER ISSUES)
    * ============================= */
-  if (quiz.status === "loading" || !quiz.questions?.length) return <QuizSkeleton />;
+  const isLoading = quiz.status === "loading";
+  const hasQuestions = (quiz.questions?.length ?? 0) > 0;
 
-  const q = quiz.questions[quiz.currentIndex];
-  if (!q) return <QuizSkeleton />;
+  const q = useMemo(() => {
+    if (!hasQuestions) return null;
+    return quiz.questions[quiz.currentIndex] ?? null;
+  }, [hasQuestions, quiz.questions, quiz.currentIndex]);
 
-  const correctAnswer: string | undefined = q.correct_answer;
+  const answers: string[] = useMemo(() => {
+    return Array.isArray((q as any)?.answers) ? ((q as any).answers as string[]) : [];
+  }, [q]);
 
+  const correctAnswer: string | undefined = useMemo(() => {
+    return (q as any)?.correct_answer ? String((q as any).correct_answer) : undefined;
+  }, [q]);
+
+  /* =============================
+   * TOKENS / USER ID (ROBUST)
+   * ============================= */
+  const tokens = Number(user?.game?.tokens ?? 0);
+  const userId = String(user?.id ?? user?._id ?? user?.uid ?? user?.userId ?? "").trim();
+
+  /* =============================
+   * HINT: disable 1 wrong answer
+   * ============================= */
+  const wrongOptionsLeft = useMemo(() => {
+    if (!correctAnswer) return 0;
+    return answers.filter((a) => a !== correctAnswer && !disabledAnswers.has(a)).length;
+  }, [answers, correctAnswer, disabledAnswers]);
+
+  const hintDisabledReason = useMemo(() => {
+    if (revealed) return "Already revealed";
+    if (!q) return "Question not ready";
+    if (!correctAnswer) return "Correct answer missing";
+    if (!userId) return "User ID missing";
+    if (tokens <= 0) return "No tokens";
+    if (wrongOptionsLeft <= 0) return "No wrong options left";
+    return null;
+  }, [revealed, q, correctAnswer, userId, tokens, wrongOptionsLeft]);
+
+  const canUseHint = !hintDisabledReason;
+
+  const handleHint = () => {
+    if (!canUseHint) return;
+
+    // Spend 1 token
+    const spent = spendUserTokens({ userId, amount: 1 });
+    if (!spent) return;
+
+    // Pick one wrong answer that is still enabled
+    const candidates = answers.filter((a) => a !== correctAnswer && !disabledAnswers.has(a));
+    if (candidates.length === 0) return;
+
+    const pick = candidates[Math.floor(Math.random() * candidates.length)];
+
+    setDisabledAnswers((prev) => {
+      const next = new Set(prev);
+      next.add(pick);
+      return next;
+    });
+
+    // If the user selected an answer that got disabled, clear it
+    if (selected === pick) setSelected(null);
+  };
+
+  /* =============================
+   * UI HELPERS
+   * ============================= */
   const mm = String(Math.floor(remainingSec / 60)).padStart(2, "0");
   const ss = String(remainingSec % 60).padStart(2, "0");
 
-  /* =============================
-   * STYLING OPTIONS
-   * - warna benar/salah HANYA muncul setelah revealed === true
-   * ============================= */
   function getAnswerClass(a: string) {
+    if (disabledAnswers.has(a)) return "opacity-50 pointer-events-none";
+
     if (!revealed) {
       if (selected === a) return "!bg-green-400 !text-black";
       return "";
@@ -139,12 +216,10 @@ export default function QuizPage() {
   }
 
   /* =============================
-   * NAV HELPERS (avoid green flash)
+   * NAV HELPERS (avoid color flash)
    * ============================= */
   const goNextClean = () => {
-    // 1) hapus efek warna dulu (important)
     resetLocal();
-    // 2) pindah soal
     dispatch(nextQuestion());
   };
 
@@ -152,7 +227,9 @@ export default function QuizPage() {
    * HANDLERS
    * ============================= */
   const handlePick = (a: string) => {
+    if (!q) return;
     if (revealed) return;
+    if (disabledAnswers.has(a)) return;
 
     if (mode === "manual") {
       setSelected(a);
@@ -163,7 +240,7 @@ export default function QuizPage() {
     setSelected(a);
     setRevealed(true);
 
-    // simpan jawaban tanpa advance
+    // Save answer without advancing
     dispatch(answerCurrent({ selected: a, advance: false }));
 
     autoNextTimeoutRef.current = window.setTimeout(() => {
@@ -177,10 +254,10 @@ export default function QuizPage() {
 
     setRevealed(true);
 
-    // simpan jawaban tanpa advance
+    // Save answer without advancing
     dispatch(answerCurrent({ selected, advance: false }));
 
-    // pause timer (secara hitungan)
+    // Pause timer (calculation-wise)
     dispatch(pauseTimer());
   };
 
@@ -188,7 +265,7 @@ export default function QuizPage() {
     if (mode !== "manual") return;
     if (!revealed) return;
 
-    // resume timer dulu, baru next
+    // Resume then go next
     dispatch(resumeTimer());
     goNextClean();
   };
@@ -196,46 +273,120 @@ export default function QuizPage() {
   const showSubmit = mode === "manual" && !!selected && !revealed;
   const showContinue = mode === "manual" && revealed;
 
+  /* =============================
+   * PROGRESS INDICATORS (SQUARES)
+   * ============================= */
+
+  // This reads the stored answer for any question by id.
+  const getStoredAnswer = (questionId: string) => {
+    const rec = (quiz.answers?.[questionId] ?? null) as {
+      selected: string;
+      correct: boolean;
+      difficulty?: string;
+    } | null;
+    return rec;
+  };
+
+  const getIndicatorClass = (index: number) => {
+    const qx = quiz.questions?.[index];
+    if (!qx) return "border-muted-foreground/50";
+
+    const rec = getStoredAnswer(qx.id);
+    const isAnswered = !!rec;
+    const isCorrect = !!rec?.correct;
+    const isWrong = isAnswered && !isCorrect;
+    const isCurrent = index === quiz.currentIndex;
+
+    // base: small square with border
+    let cls = "transition-all";
+
+    // unanswered
+    if (!isAnswered) {
+      cls += " bg-transparent border-muted-foreground/50";
+    }
+
+    // answered
+    if (isCorrect) cls += " bg-green-500 border-green-500";
+    if (isWrong) cls += " bg-red-500 border-red-500";
+
+    // current (active) highlight
+    if (isCurrent) {
+      if (!isAnswered) cls += " !bg-primary border-primary ring-2 ring-primary/30";
+      else cls += " ring-2 ring-primary/30";
+    }
+
+    return cls;
+  };
+
+  /* =============================
+   * RENDER (NO HOOKS BELOW THIS)
+   * ============================= */
+  if (isLoading || !hasQuestions || !q) return <QuizSkeleton />;
+
   return (
     <div className="space-y-4">
       {/* Top bar */}
-      <div className="flex items-center justify-between">
-        <div className="text-sm text-muted-foreground">
-          Total: <span className="font-medium text-foreground">{quiz.totalCount}</span> · Answered:{" "}
-          <span className="font-medium text-foreground">{quiz.answeredCount}</span>
-        </div>
-
+      <div className="flex items-center justify-between gap-3 flex-wrap">
         <div className="text-sm font-medium tabular-nums">
           {mm}:{ss}
         </div>
+
+        <Button
+          variant="outline"
+          onClick={handleHint}
+          disabled={!canUseHint}
+          title={
+            hintDisabledReason ? `Hint unavailable: ${hintDisabledReason}` : "Disable one wrong answer (costs 1 token)."
+          }
+        >
+          Hint ({tokens})
+        </Button>
+      </div>
+
+      {/* Progress indicators */}
+      <div
+        className="grid items-center gap-2"
+        style={{
+          gridTemplateColumns: `repeat(${
+            quiz.totalCount > 34
+              ? Math.ceil(quiz.totalCount / 3)
+              : quiz.totalCount > 16
+              ? Math.ceil(quiz.totalCount / 2)
+              : quiz.totalCount
+          }, minmax(0, 1fr))`,
+        }}
+      >
+        {Array.from({ length: quiz.totalCount }).map((_, i) => (
+          <div key={i} className={`${getIndicatorClass(i)} rounded-full w-full border h-2`} />
+        ))}
       </div>
 
       {/* Question Card */}
-      {/* key={q.id} => memastikan remount saat soal berubah (anti “flash hijau”) */}
-      <div key={q.id}>
+      <div key={(q as any).id}>
         <Card>
           <CardHeader className="space-y-1">
             <CardTitle className="text-base">
               Question {quiz.currentIndex + 1} / {quiz.totalCount}
             </CardTitle>
             <div className="text-sm text-muted-foreground">
-              {q.category} · {q.difficulty}
+              {(q as any).category} · {(q as any).difficulty}
             </div>
           </CardHeader>
 
           <Separator />
 
           <CardContent className="space-y-3">
-            <div className="text-lg leading-relaxed">{q.question}</div>
+            <div className="text-lg leading-relaxed">{(q as any).question}</div>
 
-            <div className="grid gap-2">
-              {q.answers.map((a: string) => (
+            {/* ✅ 2 columns on sm+ */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+              {answers.map((a: string) => (
                 <Button
                   key={a}
                   variant="outline"
-                  className={`justify-start ${getAnswerClass(a)}`}
+                  className={`justify-start ${getAnswerClass(a)} !h-fit whitespace-normal text-start`}
                   onClick={() => handlePick(a)}
-                  disabled={mode === "manual" && revealed} // manual: lock setelah submit
+                  disabled={(mode === "manual" && revealed) || disabledAnswers.has(a)}
                 >
                   {a}
                 </Button>

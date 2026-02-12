@@ -1,20 +1,32 @@
+// ==============================
+// quizSlice.ts (FULL FILE) — English version
+// ==============================
 import { createSlice, createAsyncThunk, type PayloadAction } from "@reduxjs/toolkit";
 
 export type QuizQuestion = {
   id: string; // generated
   question: string;
   category: string;
-  difficulty: string;
+  difficulty: string; // "easy" | "medium" | "hard"
   correct_answer: string;
   incorrect_answers: string[];
   answers: string[]; // shuffled
+};
+
+type QuizAnswerRecord = {
+  selected: string;
+  correct: boolean;
+  difficulty: string; // ✅ store difficulty for XP calc
 };
 
 type QuizState = {
   status: "idle" | "loading" | "in_progress" | "finished";
   questions: QuizQuestion[];
   currentIndex: number;
-  answers: Record<string, { selected: string; correct: boolean }>;
+
+  // ✅ stores per-question result (keyed by question id)
+  answers: Record<string, QuizAnswerRecord>;
+
   totalCount: number;
   answeredCount: number;
   correctCount: number;
@@ -22,10 +34,11 @@ type QuizState = {
 
   // timer
   startedAt: number | null; // Date.now()
-  durationSec: number; // bebas, misal 120
+  durationSec: number; // e.g., 120
   finishedAt: number | null;
-  pausedAt: number | null; // Date.now() saat pause dimulai
-  pausedMsTotal: number; // akumulasi durasi pause dalam ms
+
+  pausedAt: number | null; // Date.now() when pause starts
+  pausedMsTotal: number; // accumulated paused duration in ms
 };
 
 const initialState: QuizState = {
@@ -54,14 +67,13 @@ const shuffle = (arr: string[]) => {
   return a;
 };
 
-// decode HTML entities dari OpenTDB
+// decode HTML entities from OpenTDB
 const decodeHtml = (s: string) => {
   const txt = document.createElement("textarea");
   txt.innerHTML = s;
   return txt.value;
 };
 
-// di quizSlice.ts
 export const fetchQuiz = createAsyncThunk(
   "quiz/fetchQuiz",
   async ({
@@ -111,6 +123,7 @@ const quizSlice = createSlice({
     hydrateFromStorage: (state, action: PayloadAction<QuizState>) => {
       return action.payload;
     },
+
     startQuiz: (state, action: PayloadAction<{ durationSec?: number } | undefined>) => {
       state.status = "in_progress";
       state.currentIndex = 0;
@@ -118,15 +131,17 @@ const quizSlice = createSlice({
       state.answeredCount = 0;
       state.correctCount = 0;
       state.wrongCount = 0;
+
       state.startedAt = Date.now();
       state.finishedAt = null;
-      state.startedAt = Date.now();
-      state.finishedAt = null;
+
       state.pausedAt = null;
       state.pausedMsTotal = 0;
+
       if (action.payload?.durationSec) state.durationSec = action.payload.durationSec;
       state.totalCount = state.questions.length;
     },
+
     answerCurrent: (state, action: PayloadAction<{ selected: string; advance?: boolean }>) => {
       const q = state.questions[state.currentIndex];
       if (!q) return;
@@ -134,14 +149,20 @@ const quizSlice = createSlice({
       // prevent double answer
       if (state.answers[q.id]) return;
 
-      const correct = action.payload.selected === q.correct_answer;
+      const isCorrect = action.payload.selected === q.correct_answer;
 
-      state.answers[q.id] = { selected: action.payload.selected, correct };
+      // ✅ store difficulty inside the answer record
+      state.answers[q.id] = {
+        selected: action.payload.selected,
+        correct: isCorrect,
+        difficulty: q.difficulty ?? "easy",
+      };
+
       state.answeredCount += 1;
-      state.correctCount += correct ? 1 : 0;
-      state.wrongCount += correct ? 0 : 1;
+      state.correctCount += isCorrect ? 1 : 0;
+      state.wrongCount += isCorrect ? 0 : 1;
 
-      // advance default = true (biar behaviour lama tetap)
+      // advance default = true (keep old behavior)
       const shouldAdvance = action.payload.advance ?? true;
       if (!shouldAdvance) return;
 
@@ -153,6 +174,7 @@ const quizSlice = createSlice({
         state.currentIndex = next;
       }
     },
+
     nextQuestion: (state) => {
       if (state.status !== "in_progress") return;
 
@@ -164,16 +186,20 @@ const quizSlice = createSlice({
         state.currentIndex = next;
       }
     },
+
     finishQuiz: (state) => {
       state.status = "finished";
       state.finishedAt = Date.now();
     },
+
     resetQuiz: () => initialState,
+
     pauseTimer: (state) => {
       if (state.status !== "in_progress") return;
       if (state.pausedAt) return; // already paused
       state.pausedAt = Date.now();
     },
+
     resumeTimer: (state) => {
       if (state.status !== "in_progress") return;
       if (!state.pausedAt) return;
@@ -181,6 +207,7 @@ const quizSlice = createSlice({
       state.pausedAt = null;
     },
   },
+
   extraReducers: (builder) => {
     builder
       .addCase(fetchQuiz.pending, (state) => {

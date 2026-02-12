@@ -1,3 +1,15 @@
+// ==============================
+// StartQuizPage.tsx (FULL FILE) — English version
+// ✅ Adds "Mixed" difficulty option (unlocked by level)
+// - Lv <= 10: Easy only
+// - Lv 11–29: Easy / Medium / Mixed (easy+medium from API)
+// - Lv >= 30: Easy / Medium / Hard / Mixed (all difficulties from API)
+//
+// IMPORTANT:
+// - OpenTDB "mixed" difficulty is achieved by NOT sending the difficulty param.
+// - That means OpenTDB may return easy/medium/hard depending on their pool.
+// ==============================
+
 import { useEffect, useMemo, useState, useId } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
@@ -14,7 +26,7 @@ import { Separator } from "@/components/ui/separator";
 import { calcLevelFromXp } from "@/lib/userGame";
 import { fetchQuiz, startQuiz } from "@/store/quiz/quizSlice";
 
-type Difficulty = "easy" | "medium" | "hard";
+type Difficulty = "easy" | "medium" | "hard" | "mixed";
 type QType = "multiple" | "boolean";
 
 type LastQuizMeta = {
@@ -56,6 +68,7 @@ const CATEGORIES: Array<{ id: number; name: string }> = [
 ];
 
 function titleCaseDifficulty(d: Difficulty) {
+  if (d === "mixed") return "Mixed";
   return d.charAt(0).toUpperCase() + d.slice(1);
 }
 
@@ -71,8 +84,8 @@ function clamp(n: number, min: number, max: number) {
 /**
  * Level-based limits. Tweak these numbers to match your game's balancing.
  * - Lv <= 10: Easy only, up to 10 questions, up to 3 minutes
- * - Lv 11-29: Easy/Medium, up to 20 questions, up to 5 minutes
- * - Lv >= 30: Easy/Medium/Hard, up to 50 questions, up to 30 minutes
+ * - Lv 11-29: Easy/Medium/Mixed, up to 20 questions, up to 5 minutes
+ * - Lv >= 30: Easy/Medium/Hard/Mixed, up to 50 questions, up to 30 minutes
  */
 function getQuizLimitsByLevel(level: number) {
   if (level <= 10) {
@@ -86,7 +99,7 @@ function getQuizLimitsByLevel(level: number) {
   }
   if (level <= 29) {
     return {
-      allowedDifficulties: ["easy", "medium"] as Difficulty[],
+      allowedDifficulties: ["easy", "medium", "mixed"] as Difficulty[],
       amountMin: 5,
       amountMax: 20,
       timeMinSec: 60,
@@ -94,7 +107,7 @@ function getQuizLimitsByLevel(level: number) {
     };
   }
   return {
-    allowedDifficulties: ["easy", "medium", "hard"] as Difficulty[],
+    allowedDifficulties: ["easy", "medium", "hard", "mixed"] as Difficulty[],
     amountMin: 5,
     amountMax: 50,
     timeMinSec: 60,
@@ -102,7 +115,7 @@ function getQuizLimitsByLevel(level: number) {
   };
 }
 
-/** Radio card group (split list style) */
+/** Radio card group */
 function RadioCardGroup<T extends string>({
   value,
   onValueChange,
@@ -191,7 +204,7 @@ export default function StartQuizPage() {
 
   const limits = useMemo(() => getQuizLimitsByLevel(level), [level]);
 
-  // Load latest quiz meta (same key as Home)
+  // Load latest quiz meta
   const [lastQuiz, setLastQuiz] = useState<LastQuizMeta | null>(null);
 
   // Defaults
@@ -227,7 +240,13 @@ export default function StartQuizPage() {
         if (typeof parsed.amount === "number") setAmount(parsed.amount);
         if (typeof parsed.categoryId === "number") setCategory(parsed.categoryId);
         if (parsed.type === "multiple" || parsed.type === "boolean") setType(parsed.type);
-        if (parsed.difficulty === "easy" || parsed.difficulty === "medium" || parsed.difficulty === "hard") {
+
+        if (
+          parsed.difficulty === "easy" ||
+          parsed.difficulty === "medium" ||
+          parsed.difficulty === "hard" ||
+          parsed.difficulty === "mixed"
+        ) {
           setDifficulty(parsed.difficulty);
         }
       }
@@ -253,7 +272,7 @@ export default function StartQuizPage() {
     limits.allowedDifficulties.join(","),
   ]);
 
-  // Keep latest quiz meta synced when quiz is successfully loaded
+  // Keep latest quiz meta synced when quiz is successfully loaded (best-effort)
   useEffect(() => {
     if (!quiz?.questions?.length) return;
 
@@ -263,8 +282,13 @@ export default function StartQuizPage() {
     // Map category name -> id using our list (best-effort)
     const catId = CATEGORIES.find((c) => c.name === catName)?.id;
 
-    const qType: QType = (q0?.type as QType) === "boolean" ? "boolean" : "multiple";
-    const qDiff: Difficulty = (q0?.difficulty as Difficulty) || "easy";
+    // NOTE: Your quizSlice does not store question type, so we fallback to multiple
+    const qType: QType = "multiple";
+
+    // If user started "mixed", we keep "mixed" in meta when possible.
+    // But after fetch, OpenTDB returns concrete difficulties per question.
+    // We'll store the current selected difficulty from state here.
+    const qDiff: Difficulty = difficulty;
 
     const meta: LastQuizMeta = {
       title: catName ? `${catName}` : "Latest Quiz",
@@ -301,11 +325,14 @@ export default function StartQuizPage() {
     localStorage.setItem("lastQuizMeta", JSON.stringify(meta));
     setLastQuiz(meta);
 
+    // ✅ Mixed difficulty = do not send difficulty param
+    const difficultyParam = difficulty === "mixed" ? undefined : (difficulty as "easy" | "medium" | "hard");
+
     const action = await dispatch(
       fetchQuiz({
         amount: amountSafe,
         type,
-        difficulty,
+        difficulty: difficultyParam,
         category: selectedCategory,
       })
     );
@@ -327,11 +354,14 @@ export default function StartQuizPage() {
 
     const safeAmount = clamp(lastQuiz.amount ?? 10, limits.amountMin, limits.amountMax);
 
+    // ✅ Mixed difficulty = no difficulty param
+    const difficultyParam = safeDiff === "mixed" ? undefined : (safeDiff as "easy" | "medium" | "hard");
+
     const action = await dispatch(
       fetchQuiz({
         amount: safeAmount,
         type: (lastQuiz.type ?? "multiple") as any,
-        difficulty: safeDiff,
+        difficulty: difficultyParam,
         category: lastQuiz.categoryId,
       })
     );
@@ -354,7 +384,7 @@ export default function StartQuizPage() {
         </p>
       </div>
 
-      {/* Latest Quiz (synced with Home via localStorage "lastQuizMeta") */}
+      {/* Latest Quiz */}
       <Card>
         <CardHeader className="gap-0">
           <CardTitle className="text-base">Latest Quiz</CardTitle>
@@ -445,6 +475,13 @@ export default function StartQuizPage() {
                   rightText: level <= 29 ? "Unlock at Lv 30" : "Unlocked",
                   disabled: !limits.allowedDifficulties.includes("hard"),
                   badgeText: level >= 30 ? "Challenge" : undefined,
+                },
+                {
+                  value: "mixed",
+                  label: "Mixed",
+                  rightText: level <= 40 ? "Unlock at Lv 41" : "Unlocked",
+                  disabled: !limits.allowedDifficulties.includes("mixed"),
+                  badgeText: level >= 11 ? "Random" : undefined,
                 },
               ]}
             />
