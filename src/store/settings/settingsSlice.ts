@@ -28,7 +28,7 @@ export const STORAGE_KEY = "appSettings";
 export const defaultState: SettingsState = {
   mode: "auto",
   autoNextDelayMs: 1200,
-  sidebarVariant: "sidebar",
+  sidebarVariant: "floating",
   sidebarCollapsible: "icon",
   contentMaxWidth: "6xl",
 };

@@ -17,6 +17,7 @@ import { Link, Outlet, useLocation } from "react-router-dom";
 import type { ContentMaxWidth } from "@/store/settings/settingsSlice";
 import { useSelector } from "react-redux";
 import { cn } from "@/lib/utils";
+import { FullscreenToggleButton } from "@/components/fullscreen-toggle";
 
 const widthClass: Record<ContentMaxWidth, string> = {
   "2xl": "max-w-2xl",
@@ -61,7 +62,7 @@ export default function DashboardLayout() {
     <SidebarProvider>
       <AppSidebar variant="floating" collapsible="icon" />
       <SidebarInset className="@container">
-        <header className="flex h-16 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-12 max-md:hidden">
+        <header className="flex h-16 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-12 max-md:hidden justify-between">
           <div className="flex items-center gap-2 px-4">
             <SidebarTrigger className="-ml-1" />
             <Separator orientation="vertical" className="mr-2 data-[orientation=vertical]:h-4" />
@@ -90,6 +91,7 @@ export default function DashboardLayout() {
               </BreadcrumbList>
             </Breadcrumb>
           </div>
+          <FullscreenToggleButton className="mr-4 !size-7" />
         </header>
         <FloatingAccount className={`md:hidden ${location.pathname === "/account" ? "hidden" : ""}`} />
         <div className="flex flex-1 flex-col gap-4 p-4 md:pt-0 max-md:pb-24">
@@ -99,9 +101,6 @@ export default function DashboardLayout() {
         </div>
       </SidebarInset>
       <FloatingDock className="md:hidden" />
-      <div className="fixed top-0 right-0 w-fit">
-        <ModeToggle />
-      </div>
     </SidebarProvider>
   );
 }

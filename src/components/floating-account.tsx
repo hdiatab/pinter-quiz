@@ -1,38 +1,18 @@
+// components/FloatingAccount.tsx
 import { Link } from "react-router-dom";
 import { useSelector } from "react-redux";
-import { Expand, Shrink } from "lucide-react";
 import * as React from "react";
 
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
-import { buttonVariants } from "./ui/button";
 import { Progress } from "./ui/progress";
 import { useInitials } from "@/hooks/use-initials";
 
 import { calcLevelFromXp, xpRequiredForLevel, xpRangeForLevel } from "@/lib/userGame";
+import { FullscreenToggleButton } from "./fullscreen-toggle";
 
 export function FloatingAccount({ ...props }: React.ComponentProps<"div">) {
   const { user } = useSelector((state: any) => state.auth);
   const getInitials = useInitials();
-
-  const [isFullscreen, setIsFullscreen] = React.useState<boolean>(Boolean(document.fullscreenElement));
-
-  React.useEffect(() => {
-    const onChange = () => setIsFullscreen(Boolean(document.fullscreenElement));
-    document.addEventListener("fullscreenchange", onChange);
-    return () => document.removeEventListener("fullscreenchange", onChange);
-  }, []);
-
-  const toggleFullscreen = async () => {
-    try {
-      if (!document.fullscreenElement) {
-        await document.documentElement.requestFullscreen();
-      } else {
-        await document.exitFullscreen();
-      }
-    } catch {
-      // biasanya gagal kalau bukan dari user gesture / diblok browser
-    }
-  };
 
   const xpTotal = Number(user?.game?.xp ?? 0);
   const level = calcLevelFromXp(xpTotal);
@@ -75,18 +55,7 @@ export function FloatingAccount({ ...props }: React.ComponentProps<"div">) {
         </div>
 
         {/* Right: Fullscreen toggle */}
-        <button
-          type="button"
-          onClick={toggleFullscreen}
-          className={buttonVariants({
-            variant: "outline",
-            size: "icon",
-            className: "!rounded-full size-10 shrink-0",
-          })}
-          aria-label={isFullscreen ? "Exit fullscreen" : "Enter fullscreen"}
-        >
-          {isFullscreen ? <Shrink className="h-4 w-4" /> : <Expand className="h-4 w-4" />}
-        </button>
+        <FullscreenToggleButton className="!rounded-full size-10 shrink-0" />
       </nav>
     </div>
   );

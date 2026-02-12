@@ -199,7 +199,7 @@ const SettingPage = () => {
       {/* =========================
     APPEARANCE SETTINGS
    ========================= */}
-      <Card>
+      <Card className="overflow-hidden">
         <CardHeader>
           <CardTitle className="text-base">Appearance</CardTitle>
           <CardDescription>Theme and content width on desktop.</CardDescription>
@@ -243,7 +243,7 @@ const SettingPage = () => {
           <Separator className="md:hidden" />
 
           {/* Content Max Width */}
-          <div className="space-y-2 md:hidden">
+          <div className="space-y-2 max-md:hidden">
             <div className="text-sm font-medium">Desktop Content Width</div>
             <div className="text-xs text-muted-foreground">
               Controls the maximum width of the main content area on desktop screens.

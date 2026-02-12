@@ -126,7 +126,7 @@ export default function QuizPage() {
    * ============================= */
   function getAnswerClass(a: string) {
     if (!revealed) {
-      if (selected === a) return "border-primary";
+      if (selected === a) return "!bg-green-400 !text-black";
       return "";
     }
 
