@@ -77,7 +77,7 @@ export default function LeaderboardsPage() {
   }, [users]);
 
   return (
-    <div className="w-full max-w-2xl space-y-6 mx-auto">
+    <div className="space-y-6">
       <div className="w-full space-y-8">
         <div>
           <h1 className="text-2xl font-semibold">Top Performers</h1>

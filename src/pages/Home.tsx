@@ -274,7 +274,7 @@ export default function HomePage() {
   };
 
   return (
-    <div className="space-y-6 max-w-2xl mx-auto">
+    <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-semibold">Home</h1>
         <p className="text-muted-foreground text-sm">
@@ -310,7 +310,7 @@ export default function HomePage() {
               <p className="text-xs text-muted-foreground">{sectionDesc(diff)}</p>
             </div>
 
-            <AutoCarousel delay={delayByDiff[diff]} className="w-full">
+            <AutoCarousel delay={delayByDiff[diff]} className="">
               <CarouselContent>
                 {/* All categories card */}
                 <CarouselItem className="basis-[85%] sm:basis-[55%] lg:basis-[40%] cursor-grab active:cursor-grabbing select-none">
@@ -365,8 +365,6 @@ export default function HomePage() {
           </div>
         ))}
       </div>
-
-      <Separator />
 
       {/* Latest quiz (from last played) */}
       <div className="space-y-2">

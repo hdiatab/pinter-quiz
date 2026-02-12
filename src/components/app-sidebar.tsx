@@ -19,8 +19,18 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
     isActive: location.pathname === item.url || location.pathname.startsWith(item.url + "/"),
   }));
 
+  const { sidebarVariant, sidebarCollapsible } = useSelector((s: any) => s.settings) as {
+    sidebarVariant: "sidebar" | "floating" | "inset";
+    sidebarCollapsible: "offcanvas" | "icon" | "none";
+  };
+
   return (
-    <Sidebar {...props} classNameInner={`${state === "collapsed" ? "!rounded-full duration-1000" : ""}`}>
+    <Sidebar
+      {...props}
+      classNameInner={`${state === "collapsed" ? "!rounded-full duration-1000" : ""}`}
+      variant={sidebarVariant}
+      collapsible={sidebarCollapsible}
+    >
       <SidebarHeader>
         <Link
           to={"/"}

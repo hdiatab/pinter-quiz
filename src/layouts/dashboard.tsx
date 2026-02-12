@@ -14,6 +14,19 @@ import { Separator } from "@/components/ui/separator";
 import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { Fragment } from "react";
 import { Link, Outlet, useLocation } from "react-router-dom";
+import type { ContentMaxWidth } from "@/store/settings/settingsSlice";
+import { useSelector } from "react-redux";
+import { cn } from "@/lib/utils";
+
+const widthClass: Record<ContentMaxWidth, string> = {
+  "2xl": "max-w-2xl",
+  "3xl": "max-w-3xl",
+  "4xl": "max-w-4xl",
+  "5xl": "max-w-5xl",
+  "6xl": "max-w-6xl",
+  "7xl": "max-w-7xl",
+  full: "max-w-full",
+};
 
 export default function DashboardLayout({
   breadcrumbs,
@@ -24,6 +37,8 @@ export default function DashboardLayout({
   }[];
 }) {
   const location = useLocation();
+  const contentMaxWidth = useSelector((s: any) => s.settings.contentMaxWidth) as ContentMaxWidth;
+
   return (
     <SidebarProvider>
       <AppSidebar variant="floating" collapsible="icon" />
@@ -60,7 +75,9 @@ export default function DashboardLayout({
         </header>
         <FloatingAccount className={`md:hidden ${location.pathname === "/account" ? "hidden" : ""}`} />
         <div className="flex flex-1 flex-col gap-4 p-4 md:pt-0 max-md:pb-24">
-          <Outlet />
+          <div className={cn("mx-auto w-full", widthClass[contentMaxWidth])}>
+            <Outlet />
+          </div>
         </div>
       </SidebarInset>
       <FloatingDock className="md:hidden" />

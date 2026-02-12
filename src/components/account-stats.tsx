@@ -34,7 +34,7 @@ export function AccountStats({ className, ...props }: AccountStatsProps) {
 
       <div className="flex items-center justify-between gap-2">
         <div className="shrink-0 text-muted-foreground tabular-nums">
-          Lv <span className="text-foreground">{level}</span>
+          Lv <span className="text-foreground font-semibold">{level}</span>
         </div>
         <span className="opacity-80">{xpTotal} XP total</span>
       </div>

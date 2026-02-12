@@ -17,8 +17,6 @@ import {
   startQuiz,
 } from "@/store/quiz/quizSlice";
 
-type Mode = "auto" | "manual";
-
 export default function QuizPage() {
   const dispatch = useDispatch<any>();
   const navigate = useNavigate();
@@ -27,8 +25,7 @@ export default function QuizPage() {
   /* =============================
    * SETTINGS
    * ============================= */
-  const [mode, setMode] = useState<Mode>("auto");
-  const [autoNextDelayMs] = useState<number>(1200);
+  const { mode, autoNextDelayMs } = useSelector((s: any) => s.settings);
 
   /* =============================
    * LOCAL STATE PER QUESTION
@@ -213,19 +210,6 @@ export default function QuizPage() {
         </div>
       </div>
 
-      {/* Mode switch (optional) */}
-      <div className="flex items-center gap-2">
-        <Button variant={mode === "auto" ? "default" : "outline"} onClick={() => setMode("auto")}>
-          Auto
-        </Button>
-        <Button variant={mode === "manual" ? "default" : "outline"} onClick={() => setMode("manual")}>
-          Manual
-        </Button>
-
-        {mode === "auto" && <div className="text-xs text-muted-foreground">Delay: {autoNextDelayMs}ms</div>}
-        {mode === "manual" && quiz.pausedAt && <div className="text-xs text-muted-foreground">Timer paused</div>}
-      </div>
-
       {/* Question Card */}
       {/* key={q.id} => memastikan remount saat soal berubah (anti “flash hijau”) */}
       <div key={q.id}>
@@ -241,8 +225,8 @@ export default function QuizPage() {
 
           <Separator />
 
-          <CardContent className="space-y-3 pt-4">
-            <div className="text-sm leading-relaxed">{q.question}</div>
+          <CardContent className="space-y-3">
+            <div className="text-lg leading-relaxed">{q.question}</div>
 
             <div className="grid gap-2">
               {q.answers.map((a: string) => (

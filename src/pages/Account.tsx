@@ -217,8 +217,6 @@ export default function ProfilePage() {
 
   const g = user?.game ?? {};
 
-  const xp = Number(g.xp ?? 0);
-  const level = Number(g.level ?? 1);
   const quizzesPlayed = Number(g.quizzesPlayed ?? 0);
   const totalQuestions = Number(g.totalQuestions ?? 0);
   const totalAnswered = Number(g.totalAnswered ?? 0);
@@ -229,7 +227,7 @@ export default function ProfilePage() {
   const accuracy = totalAnswered > 0 ? Math.round((totalCorrect / totalAnswered) * 100) : 0;
 
   return (
-    <div className="max-w-2xl space-y-6 w-full mx-auto">
+    <div className="space-y-6">
       {/* Header card (cover + avatar) */}
       <Card className="overflow-hidden pt-0">
         <div
