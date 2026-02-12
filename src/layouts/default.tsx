@@ -9,7 +9,6 @@ const DefaultLayout = () => {
       <main className="grow pt-8">
         <Outlet />
       </main>
-
       <Footer />
     </>
   );

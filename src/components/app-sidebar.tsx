@@ -1,5 +1,5 @@
 import * as React from "react";
-import { HelpCircle } from "lucide-react";
+import { HelpCircle, PlayIcon } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import { useSelector } from "react-redux";
 
@@ -8,9 +8,11 @@ import { NavUser } from "@/components/nav-user";
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, useSidebar } from "@/components/ui/sidebar";
 import { NAV_ITEMS } from "@/constants/dashboard-navigation.constant";
 import { AccountStats } from "./account-stats";
+import { Button } from "./ui/button";
 
 export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
   const { user } = useSelector((state: any) => state.auth);
+  const quiz = useSelector((state: any) => state.quiz);
   const location = useLocation();
   const { state } = useSidebar();
 
@@ -23,6 +25,8 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
     sidebarVariant: "sidebar" | "floating" | "inset";
     sidebarCollapsible: "offcanvas" | "icon" | "none";
   };
+
+  const hasInProgress = quiz?.status === "in_progress" && quiz?.questions?.length > 0;
 
   return (
     <Sidebar
@@ -54,6 +58,13 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
       </SidebarContent>
 
       <SidebarFooter>
+        {hasInProgress && location.pathname !== "/quiz" && (
+          <Link to="/quiz">
+            <Button className="w-full" title="Resume Quiz">
+              {state === "collapsed" ? <PlayIcon /> : "Resume Quiz"}
+            </Button>
+          </Link>
+        )}
         <div
           className={`${
             state !== "collapsed" && location.pathname !== "/account" ? "opacity-100" : "opacity-0"

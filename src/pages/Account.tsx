@@ -4,7 +4,7 @@ import { toast } from "sonner";
 import { Upload, Check, Eye, EyeOff } from "lucide-react";
 
 import store from "@/store/store";
-import { setUser as updateUser } from "@/store/auth/authSlice";
+import { logout, setUser as updateUser } from "@/store/auth/authSlice";
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
@@ -14,6 +14,8 @@ import { Textarea } from "@/components/ui/textarea";
 
 import DEFAULT_COVER from "@/assets/subtle-prism.svg";
 import { AccountStats } from "@/components/account-stats";
+import { useDispatch } from "react-redux";
+import { useNavigate } from "react-router-dom";
 
 type Inputs = {
   name: string;
@@ -61,6 +63,9 @@ function RuleItem({ ok, label, showErrors }: { ok: boolean; label: string; showE
 }
 
 export default function ProfilePage() {
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+
   const [user, setUser] = useState<any>(null);
 
   // cover & avatar
@@ -225,6 +230,12 @@ export default function ProfilePage() {
   const lastPlayedAt = typeof g.lastPlayedAt === "number" ? g.lastPlayedAt : undefined;
 
   const accuracy = totalAnswered > 0 ? Math.round((totalCorrect / totalAnswered) * 100) : 0;
+
+  const onClickLogout = () => {
+    dispatch(logout());
+    toast.info("Logout successful!");
+    navigate("/");
+  };
 
   return (
     <div className="space-y-6">
@@ -538,13 +549,24 @@ export default function ProfilePage() {
         </Card>
 
         {/* Actions */}
-        <div className="flex justify-end gap-2">
-          <Button type="button" variant="outline" onClick={onCancel} disabled={!user}>
-            Cancel
+        <div className="flex justify-between gap-2">
+          <Button
+            type="button"
+            variant="outline"
+            onClick={onClickLogout}
+            className="!bg-red-600 !text-white hover:!bg-red-700 active:!bg-red-800 md:hidden"
+            disabled={!user}
+          >
+            Logout
           </Button>
-          <Button type="submit" disabled={!user}>
-            Save Changes
-          </Button>
+          <div className="flex justify-end gap-2">
+            <Button type="button" variant="outline" onClick={onCancel} disabled={!user}>
+              Cancel
+            </Button>
+            <Button type="submit" disabled={!user}>
+              Save Changes
+            </Button>
+          </div>
         </div>
       </form>
     </div>

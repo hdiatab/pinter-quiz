@@ -257,11 +257,6 @@ export default function ResultPage() {
     return "No answers recorded. Try again and submit answers.";
   }, [stars]);
 
-  const handleTryAgain = () => {
-    dispatch(resetQuiz());
-    navigate("/quiz");
-  };
-
   return (
     <div className="space-y-4">
       <Card className="overflow-hidden">
@@ -353,16 +348,6 @@ export default function ResultPage() {
 
           {/* Rewards panel with exact numbers */}
           <RewardsPanel reward={reward} isPerfect={isPerfect} />
-
-          <div className="flex flex-col sm:flex-row gap-2 pt-2">
-            <Button className="w-full sm:w-auto" variant="default" onClick={handleTryAgain}>
-              Try Another Quiz
-            </Button>
-
-            <Button asChild variant="outline" className="w-full sm:w-auto">
-              <Link to="/home">Home</Link>
-            </Button>
-          </div>
         </CardContent>
       </Card>
     </div>
@@ -376,7 +361,7 @@ function RewardsPanel({ reward, isPerfect }: { reward: AppliedRewardPayload | nu
   const nextLevel = reward?.nextGame?.level;
 
   return (
-    <div className="rounded-lg border p-4 space-y-3">
+    <div className="space-y-3">
       <div className="flex items-center justify-between gap-2">
         <div className="font-semibold flex items-center gap-2">
           <ArrowUp className="h-4 w-4" />

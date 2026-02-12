@@ -1,5 +1,6 @@
 import { Link } from "react-router";
 import logo from "/fav-icon.png";
+import { HelpCircleIcon } from "lucide-react";
 
 const AuthLayout = ({
   title,
@@ -15,7 +16,9 @@ const AuthLayout = ({
       <div className="bg-muted relative hidden h-full flex-col p-10 text-white lg:flex dark:border-r">
         <div className="absolute inset-0 bg-zinc-900" />
         <Link to={"/"} className="relative z-20 flex items-center text-lg font-medium">
-          <img src={logo} alt="Logo Pinter Quiz" className="w-12 h-12" />
+          <div className="bg-primary-foreground text-primary flex aspect-square size-8 items-center justify-center rounded-full">
+            <HelpCircleIcon className="size-7" />
+          </div>
         </Link>
         <div className="relative z-20 mt-auto">
           <blockquote className="space-y-2">
@@ -24,10 +27,12 @@ const AuthLayout = ({
           </blockquote>
         </div>
       </div>
-      <div className="w-full lg:p-8">
+      <div className="w-full lg:p-8 py-8">
         <div className="mx-auto flex w-full flex-col justify-center space-y-6 sm:w-[350px]">
           <Link to={"/"} className="relative z-20 flex items-center justify-center lg:hidden">
-            <img src={logo} alt="Logo Pinter Quiz" className="w-12 h-12" />
+            <div className="bg-primary text-primary-foreground flex aspect-square size-8 items-center justify-center rounded-full">
+              <HelpCircleIcon className="size-7" />
+            </div>
           </Link>
           <div className="flex flex-col items-start gap-2 text-left sm:items-center sm:text-center">
             <h1 className="text-xl font-medium">{title}</h1>

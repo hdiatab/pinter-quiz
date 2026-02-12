@@ -73,7 +73,7 @@ export function TestimonialCarousel({ testimonials = DEFAULT_TESTIMONIALS, class
       className={cn("py-12 md:py-16 lg:py-20 px-4 sm:px-6 lg:px-8", className)}
       aria-labelledby="testimonial-carousel"
     >
-      <div className="mx-auto flex max-w-4xl flex-col items-center">
+      <div className="mx-auto flex max-w-4xl container flex-col items-center">
         <Carousel
           setApi={setApi}
           opts={{ align: "start", loop: false }}

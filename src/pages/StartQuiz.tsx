@@ -506,9 +506,9 @@ export default function StartQuizPage() {
 
           {/* Amount */}
           <div className="grid gap-2">
-            <Label htmlFor="amount">
+            <Label htmlFor="amount" className="flex flex-wrap">
               Number of Questions ({limits.amountMin}–{limits.amountMax}){" "}
-              <span className="text-muted-foreground">(cap increases with level)</span>
+              <span className="text-muted-foreground text-xs">(cap increases with level)</span>
             </Label>
             <Input
               id="amount"
@@ -524,8 +524,8 @@ export default function StartQuizPage() {
 
           {/* Timer */}
           <div className="grid gap-2">
-            <Label htmlFor="timer">
-              Time Limit (seconds) <span className="text-muted-foreground">(max increases with level)</span>
+            <Label htmlFor="timer" className="flex flex-wrap">
+              Time Limit (seconds) <span className="text-muted-foreground text-xs">(max increases with level)</span>
             </Label>
             <Input
               id="timer"
@@ -543,14 +543,9 @@ export default function StartQuizPage() {
             </div>
           </div>
 
-          <div className="flex items-center justify-end gap-2">
-            <Button variant="secondary" onClick={() => navigate("/home")} disabled={isLoading}>
-              Cancel
-            </Button>
-            <Button onClick={start} disabled={isLoading}>
-              {isLoading ? "Loading…" : "Start Quiz"}
-            </Button>
-          </div>
+          <Button onClick={start} disabled={isLoading} className="w-full">
+            {isLoading ? "Loading…" : "Start Quiz"}
+          </Button>
         </CardContent>
       </Card>
 

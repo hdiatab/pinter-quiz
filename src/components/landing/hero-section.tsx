@@ -6,7 +6,7 @@ const FEATURES = ["On-brand tone control", "Ready-to-use templates", "One-click 
 export function Hero() {
   return (
     <section className="bg-background" aria-labelledby="hero-heading">
-      <div className="mx-auto flex max-w-7xl flex-col items-stretch gap-0 px-6 lg:flex-row lg:gap-16">
+      <div className="mx-auto flex container flex-col items-stretch gap-0 px-6 lg:flex-row lg:gap-16">
         <div className="flex flex-1 flex-col gap-6 pt-16 pb-12 lg:justify-center lg:gap-8">
           <div className="flex flex-col">
             <button

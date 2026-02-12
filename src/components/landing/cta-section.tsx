@@ -25,7 +25,7 @@ export function CtaSection({
 }: CtaSectionProps) {
   return (
     <section className={cn("bg-primary py-12 md:py-16 lg:py-20", className)} aria-labelledby="cta-heading">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+      <div className="mx-auto container px-4 sm:px-6 lg:px-8">
         <div className="mx-auto flex max-w-xl flex-col items-center gap-8 md:gap-10">
           <div className="mx-auto flex max-w-xl flex-col items-center gap-4 text-center md:gap-6">
             <div className="flex w-fit items-center justify-center gap-1 bg-transparent text-sm font-medium capitalize text-primary-foreground/80 [&_svg]:size-3.5 [&_svg]:shrink-0">

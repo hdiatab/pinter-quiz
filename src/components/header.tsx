@@ -35,7 +35,7 @@ const Header = () => {
   };
 
   return (
-    <header className="sticky top-0 bg-background z-20 shadow">
+    <header className="sticky top-0 bg-background z-20 shadow dark:shadow-neutral-700">
       <div className="container mx-auto flex justify-between py-2 items-center">
         <Link aria-label="Go to homepage" to="/" className="flex items-center gap-2 hover:cursor-pointer">
           <div className="bg-primary text-primary-foreground flex aspect-square size-8 items-center justify-center rounded-full">
@@ -100,10 +100,12 @@ const Header = () => {
           ) : (
             <>
               <Link to={"/login"}>
-                <Button variant={"outline"}>Login</Button>
+                <Button variant={"outline"} className="!shadow-none">
+                  Login
+                </Button>
               </Link>
               <Link to={"/register"}>
-                <Button>Register</Button>
+                <Button className="!shadow-none">Register</Button>
               </Link>
             </>
           )}

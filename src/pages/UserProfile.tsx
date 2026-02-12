@@ -89,7 +89,7 @@ export default function UserProfilePage() {
 
             {/* Name + email + bio (bio pindah ke bawah nama) */}
             <div className="space-y-1 text-center sm:pb-1 sm:text-left">
-              <div className="flex gap-2 items-center">
+              <div className="flex gap-2 items-center flex-col sm:flex-row">
                 <h3 className="text-lg font-semibold">{user?.name ?? "—"}</h3>
                 <p className="text-sm text-muted-foreground">({user?.email ?? "—"})</p>
               </div>

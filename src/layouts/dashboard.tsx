@@ -95,12 +95,14 @@ export default function DashboardLayout() {
         </header>
         <FloatingAccount className={`md:hidden ${location.pathname === "/account" ? "hidden" : ""}`} />
         <div className="flex flex-1 flex-col gap-4 p-4 md:pt-0 max-md:pb-24">
-          <div className={cn("mx-auto w-full", widthClass[contentMaxWidth])}>
+          <div className={cn("mx-auto w-full transition-all", widthClass[contentMaxWidth])}>
             <Outlet />
           </div>
         </div>
       </SidebarInset>
-      <FloatingDock className="md:hidden" />
+      <FloatingDock
+        className={`md:hidden ${location.pathname === "/quiz" ? "!-bottom-24" : ""} transition-all duration-1000`}
+      />
     </SidebarProvider>
   );
 }

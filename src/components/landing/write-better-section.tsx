@@ -31,7 +31,7 @@ const FEATURES: FeatureCard[] = [
 export function WriteBetterSection() {
   return (
     <section className="bg-muted py-12 md:py-16 lg:py-20 pb-0">
-      <div className="mx-auto flex max-w-7xl flex-col gap-10 md:gap-12 px-4 sm:px-6 lg:px-8">
+      <div className="mx-auto flex container flex-col gap-10 md:gap-12 px-4 sm:px-6 lg:px-8">
         {/* Title */}
         <div className="mx-auto flex max-w-xl flex-col items-center text-center gap-4 md:gap-6">
           <div className="flex w-fit items-center justify-center gap-1 bg-transparent text-sm font-medium text-muted-foreground capitalize [&_svg]:size-3.5 [&_svg]:shrink-0">

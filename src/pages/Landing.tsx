@@ -7,15 +7,13 @@ import { CtaSection } from "@/components/landing/cta-section";
 
 export default function LandingPage() {
   return (
-    <div className="relative antialiased">
-      <main>
-        <Hero />
-        <TrustedBy />
-        <WriteBetterSection />
-        <TestimonialCarousel />
-        <BlogSection />
-        <CtaSection />
-      </main>
-    </div>
+    <>
+      <Hero />
+      <TrustedBy />
+      <WriteBetterSection />
+      <TestimonialCarousel />
+      <BlogSection />
+      <CtaSection />
+    </>
   );
 }

@@ -364,7 +364,7 @@ export default function QuizPage() {
       {/* Question Card */}
       <div key={(q as any).id}>
         <Card>
-          <CardHeader className="space-y-1">
+          <CardHeader className="space-y-1 max-md:hidden">
             <CardTitle className="text-base">
               Question {quiz.currentIndex + 1} / {quiz.totalCount}
             </CardTitle>
@@ -373,13 +373,13 @@ export default function QuizPage() {
             </div>
           </CardHeader>
 
-          <Separator />
+          <Separator className="max-md:hidden" />
 
-          <CardContent className="space-y-3">
+          <CardContent className="space-y-4">
             <div className="text-lg leading-relaxed">{(q as any).question}</div>
 
             {/* ✅ 2 columns on sm+ */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pb-4">
               {answers.map((a: string) => (
                 <Button
                   key={a}
@@ -393,11 +393,9 @@ export default function QuizPage() {
               ))}
             </div>
 
-            {showSubmit && (
-              <Button onClick={handleSubmit} className="w-full">
-                Submit
-              </Button>
-            )}
+            <Button onClick={handleSubmit} className={`w-full ${showContinue ? "hidden" : ""}`} disabled={!showSubmit}>
+              Submit
+            </Button>
 
             {showContinue && (
               <Button onClick={handleContinue} className="w-full">
@@ -406,6 +404,17 @@ export default function QuizPage() {
             )}
           </CardContent>
         </Card>
+      </div>
+      <div className="fixed bottom-0 left-0 w-full h-fit bg-card z-10 p-4 rounded-t-lg md:hidden">
+        <Button onClick={handleSubmit} className={`w-full ${showContinue ? "hidden" : ""}`} disabled={!showSubmit}>
+          Submit
+        </Button>
+
+        {showContinue && (
+          <Button onClick={handleContinue} className="w-full">
+            Continue
+          </Button>
+        )}
       </div>
     </div>
   );

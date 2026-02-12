@@ -99,7 +99,7 @@ export default function SiteFooter({
       role="contentinfo"
       aria-label="Site footer"
     >
-      <div className="mx-auto flex max-w-7xl flex-col gap-12 px-6 lg:gap-16">
+      <div className="mx-auto flex container flex-col gap-12 px-6 lg:gap-16">
         {/* Newsletter */}
         <div className="flex flex-col items-center justify-between gap-6 lg:flex-row">
           <div className="flex flex-col gap-1 text-center lg:text-left">

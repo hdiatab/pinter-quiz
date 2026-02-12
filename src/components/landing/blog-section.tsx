@@ -58,7 +58,7 @@ type BlogSectionProps = {
 export function BlogSection({ posts = DEFAULT_POSTS, className, onViewAll, viewAllHref = "/blog" }: BlogSectionProps) {
   return (
     <section className={cn("bg-muted py-12 md:py-16 lg:py-20", className)} aria-labelledby="blog-section-heading">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+      <div className="mx-auto container px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 gap-12 lg:grid-cols-2">
           {/* Left: heading + CTA */}
           <div className="flex max-w-lg flex-col items-start gap-8">
