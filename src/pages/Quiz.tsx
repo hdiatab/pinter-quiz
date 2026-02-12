@@ -395,9 +395,15 @@ export default function QuizPage() {
               ))}
             </div>
 
-            <Button onClick={handleSubmit} className={`w-full ${showContinue ? "hidden" : ""}`} disabled={!showSubmit}>
-              Submit
-            </Button>
+            {mode === "manual" && (
+              <Button
+                onClick={handleSubmit}
+                className={`w-full ${showContinue ? "hidden" : ""}`}
+                disabled={!showSubmit}
+              >
+                Submit
+              </Button>
+            )}
 
             {showContinue && (
               <Button onClick={handleContinue} className="w-full">
@@ -407,17 +413,19 @@ export default function QuizPage() {
           </CardContent>
         </Card>
       </div>
-      <div className="fixed bottom-0 left-0 w-full h-fit bg-card z-10 p-4 rounded-t-lg md:hidden">
-        <Button onClick={handleSubmit} className={`w-full ${showContinue ? "hidden" : ""}`} disabled={!showSubmit}>
-          Submit
-        </Button>
-
-        {showContinue && (
-          <Button onClick={handleContinue} className="w-full">
-            Continue
+      {mode === "manual" && (
+        <div className="fixed bottom-0 left-0 w-full h-fit bg-card z-10 p-4 rounded-t-lg md:hidden">
+          <Button onClick={handleSubmit} className={`w-full ${showContinue ? "hidden" : ""}`} disabled={!showSubmit}>
+            Submit
           </Button>
-        )}
-      </div>
+
+          {showContinue && (
+            <Button onClick={handleContinue} className="w-full">
+              Continue
+            </Button>
+          )}
+        </div>
+      )}
     </div>
   );
 }
