@@ -16,25 +16,28 @@ type Testimonial = {
 
 const DEFAULT_TESTIMONIALS: Testimonial[] = [
   {
-    quote: "Orionbo cut our editing time in half. The outputs are clean, consistent, and easy to fine-tune.",
-    name: "Alex Morgan",
-    title: "Frontend Developer at StartHub",
+    quote:
+      "I love how fast it is. I pick a category, hit start, and the questions feel fresh every time. Perfect for quick breaks.",
+    name: "Maya Chen",
+    title: "Quiz lover & casual learner",
     avatarSrc: "https://github.com/hdiatab.png",
-    avatarAlt: "Alex Morgan",
+    avatarAlt: "Maya Chen",
   },
   {
-    quote: "Orionbo cut our editing time in half. The outputs are clean, consistent, and easy to fine-tune.",
-    name: "Alex Morgan",
-    title: "Frontend Developer at StartHub",
+    quote:
+      "The difficulty options are spot on. Easy for warm-ups, hard when I want a real challenge—and the score feedback is instant.",
+    name: "Jordan Patel",
+    title: "Competitive player",
     avatarSrc: "https://github.com/hdiatab.png",
-    avatarAlt: "Alex Morgan",
+    avatarAlt: "Jordan Patel",
   },
   {
-    quote: "Orionbo cut our editing time in half. The outputs are clean, consistent, and easy to fine-tune.",
-    name: "Alex Morgan",
-    title: "Frontend Developer at StartHub",
+    quote:
+      "Clean UI, smooth flow, and no fluff. I can run a full quiz in minutes and actually learn from the answer review.",
+    name: "Sofia Alvarez",
+    title: "Student & trivia fan",
     avatarSrc: "https://github.com/hdiatab.png",
-    avatarAlt: "Alex Morgan",
+    avatarAlt: "Sofia Alvarez",
   },
 ];
 
@@ -88,7 +91,7 @@ export function TestimonialCarousel({ testimonials = DEFAULT_TESTIMONIALS, class
                 type="button"
                 variant="outline"
                 size="icon"
-                className="relative left-[-1rem] top-1/2 h-10 w-10 -translate-y-1/2 rounded-full shadow-xs"
+                className="relative left-[-1rem] top-1/2 h-10 w-10 rounded-full shadow-none"
                 onClick={() => api?.scrollPrev()}
                 disabled={!canScrollPrev}
               >
@@ -102,7 +105,7 @@ export function TestimonialCarousel({ testimonials = DEFAULT_TESTIMONIALS, class
                 type="button"
                 variant="outline"
                 size="icon"
-                className="relative right-[-1rem] top-1/2 h-10 w-10 -translate-y-1/2 rounded-full shadow-xs"
+                className="relative right-[-1rem] top-1/2 h-10 w-10 rounded-full shadow-none"
                 onClick={() => api?.scrollNext()}
                 disabled={!canScrollNext}
               >

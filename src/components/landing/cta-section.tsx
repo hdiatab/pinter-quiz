@@ -16,12 +16,11 @@ type CtaSectionProps = {
 
 export function CtaSection({
   className,
-  eyebrow = "Get Orionbo",
-  title = "Start writing better and faster today",
-  description = "Create better on-brand drafts, rewrites, and summaries in minutes.",
-  ctaLabel = "Get started",
-  ctaHref = "/signup",
-  onCtaClick,
+  eyebrow = "Start a quiz",
+  title = "Ready to test your knowledge?",
+  description = "Pick a category, choose your difficulty, and see how high you can score",
+  ctaLabel = "Play now",
+  ctaHref = "/quiz",
 }: CtaSectionProps) {
   return (
     <section className={cn("bg-primary py-12 md:py-16 lg:py-20", className)} aria-labelledby="cta-heading">
@@ -37,30 +36,24 @@ export function CtaSection({
             </h2>
 
             <p className="text-pretty text-lg/8 text-primary-foreground/80">{description}</p>
+            <Link
+              to={"https://opentdb.com/"}
+              className="text-pretty text-primary-foreground/80 hover:underline underline-offset-2"
+            >
+              ~ Powered by OpenTDB ~
+            </Link>
           </div>
 
-          {onCtaClick ? (
-            <Button
-              type="button"
-              onClick={onCtaClick}
-              className="h-9 bg-primary-foreground px-4 py-2 text-primary hover:bg-primary-foreground/80"
-              aria-label="Get started with our service"
-            >
+          <Button
+            asChild
+            className="h-9 bg-primary-foreground px-4 py-2 text-primary hover:bg-primary-foreground/80"
+            aria-label="Start a quiz"
+          >
+            <Link to={ctaHref}>
               {ctaLabel}
               <ArrowRight className="h-4 w-4" />
-            </Button>
-          ) : (
-            <Button
-              asChild
-              className="h-9 bg-primary-foreground px-4 py-2 text-primary hover:bg-primary-foreground/80"
-              aria-label="Get started with our service"
-            >
-              <Link to={ctaHref}>
-                {ctaLabel}
-                <ArrowRight className="h-4 w-4" />
-              </Link>
-            </Button>
-          )}
+            </Link>
+          </Button>
         </div>
       </div>
     </section>

@@ -1,7 +1,8 @@
 import { ArrowUpRight, Check } from "lucide-react";
 import { Button } from "../ui/button";
+import { Link } from "react-router-dom";
 
-const FEATURES = ["On-brand tone control", "Ready-to-use templates", "One-click rewrites & summaries"];
+const FEATURES = ["Fresh questions from OpenTDB", "Pick your category & difficulty", "Instant score and results"];
 
 export function Hero() {
   return (
@@ -11,20 +12,18 @@ export function Hero() {
           <div className="flex flex-col">
             <button
               type="button"
-              className="flex items-center justify-center gap-1.5 w-fit cursor-pointer rounded-full border bg-card px-3 py-0 h-7 text-sm font-medium shadow-xs transition-colors hover:bg-accent [&_svg]:size-4 [&_svg]:shrink-0"
+              className="flex items-center justify-center gap-1.5 w-fit rounded-full border bg-card px-3 py-0 h-7 text-sm font-medium shadow-xs transition-colors hover:bg-accent [&_svg]:size-4 [&_svg]:shrink-0"
             >
-              <span className="size-1.5 rounded-full bg-green-500" />
-              <span>Orionbo v2.0 is live</span>
-              <ArrowUpRight />
+              <span className="size-1.5 rounded-full bg-green-500 animate-pulse" />
+              <span>New quizzes available today</span>
             </button>
 
             <h1 id="hero-heading" className="mt-6 text-4xl font-semibold tracking-tight sm:text-5xl">
-              Write better, faster. Everywhere.
+              Play quick quizzes. Learn something new.
             </h1>
 
             <p className="mt-4 text-lg/8 text-muted-foreground text-pretty">
-              AI writing assistant that turns rough notes into clear, on-brand copy in seconds. Draft, rewrite, and
-              polish without losing your voice.
+              A fun quiz app powered by OpenTDB. Choose a topic, set the difficulty, and test your knowledge in minutes.
             </p>
 
             <div className="mt-6 flex flex-col gap-2">
@@ -38,13 +37,14 @@ export function Hero() {
           </div>
 
           <div className="flex gap-2">
-            <Button>Get started</Button>
-            <Button variant="secondary">Learn more</Button>
+            <Link to={"/home"}>
+              <Button>Start a quiz</Button>
+            </Link>
           </div>
         </div>
 
         {/* Hero image */}
-        <div className="relative aspect-[4/5] w-full flex-1 rounded-2xl overflow-hidden">
+        <div className="relative h-[calc(100vh-120px)] w-full flex-1 rounded-2xl overflow-hidden">
           <div className="bg-primary absolute inset-0 z-0 h-full w-full infinite-image" />
         </div>
       </div>

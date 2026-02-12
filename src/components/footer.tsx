@@ -12,43 +12,43 @@ type FooterColumn = { title: string; ariaLabel: string; links: FooterLink[] };
 
 const DEFAULT_COLUMNS: FooterColumn[] = [
   {
-    title: "Company",
-    ariaLabel: "Company links",
+    title: "Product",
+    ariaLabel: "Product links",
     links: [
-      { label: "About Us", href: "#" },
-      { label: "Blog", href: "#" },
-      { label: "Careers", href: "#" },
-      { label: "Partners", href: "#" },
+      { label: "Play a Quiz", href: "/quiz" },
+      { label: "Categories", href: "/categories" },
+      { label: "Leaderboard", href: "/leaderboard" },
+      { label: "Changelog", href: "/changelog" },
     ],
   },
   {
     title: "Resources",
     ariaLabel: "Resources links",
     links: [
-      { label: "Guides", href: "#" },
-      { label: "Tutorials", href: "#" },
-      { label: "FAQ", href: "#" },
-      { label: "Downloads", href: "#" },
+      { label: "How it Works", href: "/how-it-works" },
+      { label: "FAQ", href: "/faq" },
+      { label: "Blog", href: "/blog" },
+      { label: "OpenTDB Credits", href: "/credits" },
     ],
   },
   {
     title: "Account",
     ariaLabel: "Account links",
     links: [
-      { label: "Your Account", href: "#" },
-      { label: "Settings", href: "#" },
-      { label: "Accessibility", href: "#" },
-      { label: "Terms", href: "#" },
+      { label: "Sign in", href: "/signin" },
+      { label: "Sign up", href: "/signup" },
+      { label: "Settings", href: "/settings" },
+      { label: "Accessibility", href: "/accessibility" },
     ],
   },
   {
-    title: "Help & Feedback",
-    ariaLabel: "Help & Feedback links",
+    title: "Support",
+    ariaLabel: "Support links",
     links: [
-      { label: "Contact Support", href: "#" },
-      { label: "Get In Touch", href: "#" },
-      { label: "Help Articles", href: "#" },
-      { label: "Feedback Form", href: "#" },
+      { label: "Contact", href: "/contact" },
+      { label: "Help Center", href: "/help" },
+      { label: "Feedback", href: "/feedback" },
+      { label: "Status", href: "/status" },
     ],
   },
   {
@@ -56,7 +56,7 @@ const DEFAULT_COLUMNS: FooterColumn[] = [
     ariaLabel: "Social links",
     links: [
       { label: "Facebook", href: "#" },
-      { label: "Linkedin", href: "#" },
+      { label: "LinkedIn", href: "#" },
       { label: "Instagram", href: "#" },
       { label: "X", href: "#" },
     ],
@@ -86,7 +86,7 @@ export default function SiteFooter({
     e.preventDefault();
     try {
       setSubmitting(true);
-      toast("Thankyou for subscribe to our news");
+      toast("Thanks for subscribing!");
       setEmail("");
     } finally {
       setSubmitting(false);
@@ -99,17 +99,17 @@ export default function SiteFooter({
       role="contentinfo"
       aria-label="Site footer"
     >
-      <div className="mx-auto flex container flex-col gap-12 px-6 lg:gap-16">
+      <div className="mx-auto flex container flex-col gap-10 px-6 md:gap-12 lg:gap-16">
         {/* Newsletter */}
-        <div className="flex flex-col items-center justify-between gap-6 lg:flex-row">
+        <div className="flex flex-col items-stretch gap-6 lg:flex-row lg:items-center lg:justify-between">
           <div className="flex flex-col gap-1 text-center lg:text-left">
-            <h2 className="text-lg font-medium text-foreground">Subscribe to our newsletter</h2>
-            <p className="text-muted-foreground">Get the latest news and updates from our team.</p>
+            <h2 className="text-lg font-medium text-foreground">Get quiz updates</h2>
+            <p className="text-muted-foreground">New categories, feature updates, and occasional trivia tips.</p>
           </div>
 
-          <div className="w-full max-w-sm">
+          <div className="w-full lg:max-w-md">
             <form onSubmit={handleSubmit} className="flex flex-col gap-2">
-              <div className="flex flex-col gap-2 lg:flex-row">
+              <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
                 <label htmlFor="footer-email" className="sr-only">
                   Email
                 </label>
@@ -120,32 +120,40 @@ export default function SiteFooter({
                   placeholder="Enter your email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="flex-1"
+                  className="h-10 flex-1"
                   required
                 />
 
-                <Button type="submit" disabled={submitting}>
+                <Button type="submit" disabled={submitting} className="h-10 sm:w-auto shadow-none">
                   Subscribe
                 </Button>
               </div>
+
+              <p className="text-center text-xs text-muted-foreground sm:text-left">No spam. Unsubscribe anytime.</p>
             </form>
           </div>
         </div>
 
-        {/* Link columns */}
-        <div className="grid grid-cols-1 items-center gap-12 text-center lg:grid-cols-5 lg:items-start lg:gap-6 lg:text-left">
+        {/* Link columns (better mobile/tablet layout) */}
+        <div
+          className={cn(
+            "grid gap-10 text-center",
+            "grid-cols-2",
+            "md:grid-cols-3 md:text-left",
+            "lg:grid-cols-5 lg:gap-6"
+          )}
+        >
           {columns.map((col) => (
             <div key={col.title} className="flex flex-col gap-4">
               <h3 className="text-base font-medium text-foreground">{col.title}</h3>
               <nav className="flex flex-col gap-3" aria-label={col.ariaLabel}>
                 {col.links.map((l) => (
-                  <Link
+                  <span
                     key={l.label}
-                    to={l.href}
-                    className="text-muted-foreground transition-colors hover:text-foreground"
+                    className="text-muted-foreground transition-colors hover:text-foreground hover:underline cursor-pointer w-fit"
                   >
                     {l.label}
-                  </Link>
+                  </span>
                 ))}
               </nav>
             </div>
@@ -154,29 +162,29 @@ export default function SiteFooter({
 
         <Separator />
 
-        {/* Bottom bar */}
-        <div className="flex flex-col gap-12 text-center lg:flex-row lg:items-center lg:justify-between lg:text-left">
-          <p className="order-2 text-center text-muted-foreground lg:order-1 lg:text-left">
-            <span>Copyright © {year}</span>{" "}
-            <Link to={brandHref} className="hover:underline">
+        {/* Bottom bar (mobile-first, tablet-friendly) */}
+        <div className="flex flex-col gap-6 text-center md:flex-row md:items-center md:justify-between md:text-left">
+          <p className="text-muted-foreground">
+            <span>© {year}</span>{" "}
+            <Link to={"https://github.com/hdiatab"} className="hover:underline">
               {brandLabel}
             </Link>
             . All rights reserved.
           </p>
 
           <nav
-            className="order-1 flex flex-col items-center gap-4 text-center lg:order-2 lg:flex-row lg:items-start lg:gap-8 lg:text-left"
+            className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 md:justify-end"
             aria-label="Legal links"
           >
-            <Link to="#" className="text-muted-foreground transition-colors hover:text-foreground">
-              Privacy Policy
-            </Link>
-            <Link to="#" className="text-muted-foreground transition-colors hover:text-foreground">
-              Terms of Service
-            </Link>
-            <Link to="#" className="text-muted-foreground transition-colors hover:text-foreground">
-              Cookies Settings
-            </Link>
+            <p className="text-muted-foreground transition-colors hover:text-foreground hover:underline hover:cursor-pointer">
+              Privacy
+            </p>
+            <p className="text-muted-foreground transition-colors hover:text-foreground hover:underline hover:cursor-pointer">
+              Terms
+            </p>
+            <p className="text-muted-foreground transition-colors hover:text-foreground hover:underline hover:cursor-pointer">
+              Cookie Settings
+            </p>
           </nav>
         </div>
       </div>

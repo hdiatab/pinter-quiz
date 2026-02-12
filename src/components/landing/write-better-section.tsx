@@ -9,22 +9,22 @@ type FeatureCard = {
 
 const FEATURES: FeatureCard[] = [
   {
-    title: "Draft in seconds",
-    description: "Go from blank page to a solid first draft for emails, blogs, and landing pages.",
+    title: "Fresh quizzes every time",
+    description: "Get a new set of questions on every play—powered by OpenTDB, so it never feels repetitive.",
     imageSrc: image,
-    imageAlt: "Draft in seconds",
+    imageAlt: "Fresh quizzes every time",
   },
   {
-    title: "Rewrite on command",
-    description: "Shorten, expand, simplify, or change tone while keeping the meaning intact.",
+    title: "Choose your challenge",
+    description: "Pick a category and difficulty, then jump straight in—easy, medium, or hard.",
     imageSrc: image,
-    imageAlt: "Rewrite on command",
+    imageAlt: "Choose your challenge",
   },
   {
-    title: "Stay on-brand",
-    description: "Apply your voice guidelines so every output sounds like your team wrote it.",
+    title: "Instant results",
+    description: "See your score right away and review your answers to learn as you go.",
     imageSrc: image,
-    imageAlt: "Stay on-brand",
+    imageAlt: "Instant results",
   },
 ];
 
@@ -35,13 +35,13 @@ export function WriteBetterSection() {
         {/* Title */}
         <div className="mx-auto flex max-w-xl flex-col items-center text-center gap-4 md:gap-6">
           <div className="flex w-fit items-center justify-center gap-1 bg-transparent text-sm font-medium text-muted-foreground capitalize [&_svg]:size-3.5 [&_svg]:shrink-0">
-            Write better
+            Play smarter
           </div>
 
-          <h2 className="text-4xl font-bold text-foreground">See your writing improve with every prompt</h2>
+          <h2 className="text-4xl font-bold text-foreground">A better quiz experience, start to finish</h2>
 
           <p className="text-muted-foreground text-lg/8 text-pretty">
-            Create cleaner drafts, sharper headlines, and stronger CTAs without extra editing loops.
+            Quick to start, fun to play, and satisfying to finish—perfect for a short break or a full challenge.
           </p>
         </div>
 

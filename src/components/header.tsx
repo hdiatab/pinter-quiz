@@ -41,7 +41,7 @@ const Header = () => {
           <div className="bg-primary text-primary-foreground flex aspect-square size-8 items-center justify-center rounded-full">
             <HelpCircleIcon className="size-7" />
           </div>
-          <span className="text-lg font-semibold tracking-tight">Pinter Quiz</span>
+          <span className="text-lg font-semibold tracking-tight max-sm:hidden">Pinter Quiz</span>
         </Link>
 
         <div className="justify-self-end flex gap-2 items-center relative">

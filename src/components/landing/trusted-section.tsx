@@ -1,11 +1,32 @@
-const LOGOS: { name: string }[] = [
-  { name: "Buzzsnap" },
-  { name: "Dashstar" },
-  { name: "Editly" },
-  { name: "Geoaura" },
-  { name: "Nanodea" },
-  { name: "Revahub" },
-  { name: "Starlight" },
+const LOGOS: { name: string; src: string }[] = [
+  {
+    name: "Harvard University",
+    src: "https://en.wikipedia.org/wiki/Special:FilePath/Harvard%20University%20logo.svg",
+  },
+  {
+    name: "MIT",
+    src: "https://en.wikipedia.org/wiki/Special:FilePath/MIT_Logo_and_Wordmark.svg",
+  },
+  {
+    name: "Stanford University",
+    src: "https://commons.wikimedia.org/wiki/Special:FilePath/Stanford_wordmark_%282012%29.svg",
+  },
+  {
+    name: "University of Oxford",
+    src: "https://commons.wikimedia.org/wiki/Special:FilePath/Uni_Oxford_logo.svg",
+  },
+  {
+    name: "University of Cambridge",
+    src: "https://commons.wikimedia.org/wiki/Special:FilePath/University_of_Cambridge_logo.png",
+  },
+  {
+    name: "ETH Zürich",
+    src: "https://en.wikipedia.org/wiki/Special:FilePath/ETH%20Z%C3%BCrich%20Logo.svg",
+  },
+  {
+    name: "Caltech",
+    src: "https://commons.wikimedia.org/wiki/Special:FilePath/Caltech_Logo.svg",
+  },
 ];
 
 export function TrustedBy() {
@@ -14,7 +35,9 @@ export function TrustedBy() {
       <div className="mx-auto max-w-7xl px-6">
         <div className="flex flex-col items-center gap-12 md:gap-16">
           <div className="flex max-w-xl flex-col items-center text-center gap-3">
-            <div className="text-sm font-medium text-muted-foreground capitalize">Trusted by the best companies</div>
+            <div className="text-sm font-medium text-muted-foreground capitalize">
+              Trusted by top universities worldwide
+            </div>
           </div>
 
           <LogoMarquee>
@@ -24,7 +47,7 @@ export function TrustedBy() {
                 aria-label={`${l.name} logo`}
                 className="relative mr-12 flex flex-shrink-0 place-items-center justify-center"
               >
-                <LogoMark name={l.name} />
+                <LogoMark name={l.name} src={l.src} />
               </div>
             ))}
           </LogoMarquee>
@@ -53,12 +76,17 @@ function LogoMarquee({ children }: { children: React.ReactNode }) {
   );
 }
 
-// Placeholder logo. Ganti ini dengan SVG asli (pakai currentColor biar ikut theme).
-function LogoMark({ name }: { name: string }) {
+// Logo (ambil dari Wikipedia/Wikimedia via Special:FilePath)
+function LogoMark({ name, src }: { name: string; src: string }) {
   return (
-    <div className="flex items-center gap-2 text-foreground">
-      <div className="size-9 rounded-md border bg-card" />
-      <span className="text-sm font-medium">{name}</span>
+    <div className="py-2 px-4 rounded-lg dark:bg-card-foreground dark:border">
+      <img
+        src={src}
+        alt={`${name} logo`}
+        className="h-8 w-full object-contain"
+        loading="lazy"
+        referrerPolicy="no-referrer"
+      />
     </div>
   );
 }

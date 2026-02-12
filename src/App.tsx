@@ -45,7 +45,7 @@ export default function App() {
           }
         />
       </Route>
-      <Route element={<ProtectedRoute condition={isAuthenticated} target="/" />}>
+      <Route element={<ProtectedRoute condition={isAuthenticated} target="/login" />}>
         <Route element={<DashboardLayout />}>
           <Route path="account" element={<AccountPage />} />
           <Route path="home" element={<HomePage />} />
