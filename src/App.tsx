@@ -15,6 +15,7 @@ import QuizPage from "./pages/Quiz";
 import ResultPage from "./pages/QuizResult";
 import Leaderboard from "./pages/Leaderboard";
 import StartQuizPage from "./pages/StartQuiz";
+import NotFoundSection from "./pages/NotFound";
 
 export default function App() {
   const { isAuthenticated } = useSelector((state: any) => state.auth);
@@ -66,7 +67,7 @@ export default function App() {
         </Route>
       </Route>
       <Route path="*" element={<DefaultLayout />}>
-        <Route path="*" element={<h1>404</h1>} />
+        <Route path="*" element={<NotFoundSection />} />
       </Route>
     </Routes>
   );
