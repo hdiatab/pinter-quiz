@@ -1,5 +1,5 @@
 import { createRoot } from "react-dom/client";
-import { BrowserRouter } from "react-router-dom";
+import { HashRouter } from "react-router-dom";
 
 import { ThemeProvider } from "@/components/theme-provider.tsx";
 
@@ -12,9 +12,9 @@ import { Toaster } from "./components/ui/sonner.tsx";
 createRoot(document.getElementById("root")!).render(
   <Provider store={store}>
     <ThemeProvider defaultTheme="dark" storageKey="pinter-ui-theme">
-      <BrowserRouter>
+      <HashRouter>
         <App />
-      </BrowserRouter>
+      </HashRouter>
       <Toaster />
     </ThemeProvider>
   </Provider>
