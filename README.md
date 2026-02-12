@@ -1,4 +1,6 @@
-# Quiz App (OpenTDB) — Simple Guide
+# Pinter Quiz App (Powered by OpenTDB)
+
+[![Live Demo](https://img.shields.io/badge/Live%20Demo-GitHub%20Pages-brightgreen)](https://hdiatab.github.io/pinter-quiz/#/)
 
 This is a **quiz website app** where people can:
 
