@@ -16,6 +16,7 @@ import DEFAULT_COVER from "@/assets/subtle-prism.svg";
 import { AccountStats } from "@/components/account-stats";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
+import PageTitle from "@/components/page-title";
 
 type Inputs = {
   name: string;
@@ -239,6 +240,7 @@ export default function ProfilePage() {
 
   return (
     <div className="space-y-6">
+      <PageTitle title="Account" />
       {/* Header card (cover + avatar) */}
       <Card className="overflow-hidden pt-0">
         <div

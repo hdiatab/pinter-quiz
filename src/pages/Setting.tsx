@@ -21,6 +21,7 @@ import {
   type SidebarCollapsible,
   type ContentMaxWidth,
 } from "@/store/settings/settingsSlice";
+import PageTitle from "@/components/page-title";
 
 const CONTENT_WIDTH_PRESETS: Array<{
   value: ContentMaxWidth;
@@ -86,6 +87,8 @@ const SettingPage = () => {
 
   return (
     <div className="space-y-4">
+      <PageTitle title="Setting" />
+
       <div>
         <h1 className="text-2xl font-semibold">Settings</h1>
         <p className="text-sm text-muted-foreground">Configure quiz behavior, layout, and appearance.</p>

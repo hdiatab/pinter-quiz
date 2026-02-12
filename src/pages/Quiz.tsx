@@ -28,6 +28,7 @@ import {
 } from "@/store/quiz/quizSlice";
 
 import { spendUserTokens } from "@/lib/userGame";
+import PageTitle from "@/components/page-title";
 
 export default function QuizPage() {
   const dispatch = useDispatch<any>();
@@ -325,6 +326,7 @@ export default function QuizPage() {
 
   return (
     <div className="space-y-4">
+      <PageTitle title="Quiz" />
       {/* Top bar */}
       <div className="flex items-center justify-between gap-3 flex-wrap">
         <div className="text-sm font-medium tabular-nums">

@@ -4,10 +4,12 @@ import { BlogSection } from "@/components/landing/blog-section";
 import { Hero } from "@/components/landing/hero-section";
 import { TrustedBy } from "@/components/landing/trusted-section";
 import { CtaSection } from "@/components/landing/cta-section";
+import PageTitle from "@/components/page-title";
 
 export default function LandingPage() {
   return (
     <>
+      <PageTitle title={"Lest's go"} />
       <Hero />
       <TrustedBy />
       <WriteBetterSection />

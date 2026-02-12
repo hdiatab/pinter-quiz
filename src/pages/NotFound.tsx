@@ -1,3 +1,4 @@
+import PageTitle from "@/components/page-title";
 import { Link } from "react-router-dom";
 
 type NotFoundSectionProps = {
@@ -15,6 +16,7 @@ export default function NotFoundSection({
 }: NotFoundSectionProps) {
   return (
     <section className="bg-background py-16 md:py-20" aria-labelledby="error-title">
+      <PageTitle title="404" />
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="relative z-10 flex flex-col items-center gap-12 lg:flex-row lg:gap-16">
           <div className="mx-auto flex max-w-xl flex-1 flex-col items-center gap-6 text-center lg:gap-8">

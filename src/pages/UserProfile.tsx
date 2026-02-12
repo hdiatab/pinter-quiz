@@ -5,6 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 
 import DEFAULT_COVER from "@/assets/subtle-prism.svg";
 import { AccountStats } from "@/components/account-stats";
+import PageTitle from "@/components/page-title";
 
 function formatNumber(n: number) {
   return new Intl.NumberFormat().format(n);
@@ -61,6 +62,8 @@ export default function UserProfilePage() {
 
   return (
     <div className="space-y-6">
+      <PageTitle title={user?.name || "Profile"} />
+
       {/* Header card (cover + avatar) */}
       <Card className="overflow-hidden pt-0">
         <div

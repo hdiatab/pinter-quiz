@@ -3,6 +3,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Link } from "react-router-dom";
+import PageTitle from "@/components/page-title";
 
 type UserGameStats = {
   xp: number;
@@ -79,6 +80,7 @@ export default function LeaderboardsPage() {
 
   return (
     <div className="space-y-6">
+      <PageTitle title="Leaderboards" />
       <div className="w-full space-y-8">
         <div>
           <h1 className="text-2xl font-semibold">Top Performers</h1>

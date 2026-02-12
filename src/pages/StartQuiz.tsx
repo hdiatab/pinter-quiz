@@ -25,6 +25,7 @@ import { Separator } from "@/components/ui/separator";
 
 import { calcLevelFromXp } from "@/lib/userGame";
 import { fetchQuiz, startQuiz } from "@/store/quiz/quizSlice";
+import PageTitle from "@/components/page-title";
 
 type Difficulty = "easy" | "medium" | "hard" | "mixed";
 type QType = "multiple" | "boolean";
@@ -376,6 +377,7 @@ export default function StartQuizPage() {
 
   return (
     <div className="space-y-6">
+      <PageTitle title="Start Quiz" />
       <div>
         <h1 className="text-2xl font-semibold">Start a Quiz</h1>
         <p className="text-muted-foreground text-sm">

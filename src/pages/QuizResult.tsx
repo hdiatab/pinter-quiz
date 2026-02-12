@@ -22,6 +22,7 @@ import { resetQuiz } from "@/store/quiz/quizSlice";
 import { applyQuizResultToUser } from "@/lib/userGame";
 import { toast } from "sonner";
 import { StarRating } from "@/components/ui/star-rating";
+import PageTitle from "@/components/page-title";
 
 function clamp01(n: number) {
   return Math.max(0, Math.min(1, n));
@@ -362,6 +363,7 @@ function RewardsPanel({ reward, isPerfect }: { reward: AppliedRewardPayload | nu
 
   return (
     <div className="space-y-3">
+      <PageTitle title="Result" />
       <div className="flex items-center justify-between gap-2">
         <div className="font-semibold flex items-center gap-2">
           <ArrowUp className="h-4 w-4" />

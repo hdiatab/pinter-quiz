@@ -37,6 +37,7 @@ import {
   Tv,
   type LucideIcon,
 } from "lucide-react";
+import PageTitle from "@/components/page-title";
 
 type Difficulty = "easy" | "medium" | "hard";
 type QuizType = "multiple" | "boolean";
@@ -455,6 +456,7 @@ export default function HomePage() {
 
   return (
     <div className="space-y-6">
+      <PageTitle title="Home" />
       <div>
         <h1 className="text-2xl font-semibold">{hero.title}</h1>
         <p className="text-muted-foreground text-sm">
