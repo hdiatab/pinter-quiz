@@ -1,7 +1,8 @@
 import { NAV_ITEMS } from "@/constants/dashboard-navigation.constant";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 
 export function FloatingDock({ className = "" }: { className?: string }) {
+  const location = useLocation();
   const navItemsWithActive = NAV_ITEMS.map((item) => ({
     ...item,
     isActive: location.pathname === item.url || location.pathname.startsWith(item.url + "/"),
