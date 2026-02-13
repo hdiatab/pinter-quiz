@@ -204,7 +204,7 @@ export default function QuizPage() {
     if (disabledAnswers.has(a)) return "opacity-50 pointer-events-none";
 
     if (!revealed) {
-      if (selected === a) return "!bg-green-400 !text-black";
+      if (selected === a) return "!bg-primary !text-primary-foreground";
       return "";
     }
 
@@ -398,7 +398,7 @@ export default function QuizPage() {
             {mode === "manual" && (
               <Button
                 onClick={handleSubmit}
-                className={`w-full ${showContinue ? "hidden" : ""}`}
+                className={`w-full max-md:hidden ${showContinue ? "hidden" : ""}`}
                 disabled={!showSubmit}
               >
                 Submit
@@ -406,7 +406,7 @@ export default function QuizPage() {
             )}
 
             {showContinue && (
-              <Button onClick={handleContinue} className="w-full">
+              <Button onClick={handleContinue} className="w-full max-md:hidden">
                 Continue
               </Button>
             )}
